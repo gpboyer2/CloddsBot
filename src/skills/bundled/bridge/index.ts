@@ -57,7 +57,7 @@ async function execute(args: string): Promise<string> {
   const cmd = parts[0]?.toLowerCase() || 'help';
 
   try {
-    const wormhole = await import('../../../bridge/wormhole');
+    const wormhole = await import('../../../bridge/wormhole.js');
 
     switch (cmd) {
       case 'quote': {

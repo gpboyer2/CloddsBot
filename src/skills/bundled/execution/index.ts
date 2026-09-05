@@ -33,7 +33,7 @@ async function execute(args: string): Promise<string> {
 
     // Lazy circuit breaker getter
     const getCircuitBreaker = async () => {
-      const { getGlobalCircuitBreaker } = await import('../../../execution/circuit-breaker');
+      const { getGlobalCircuitBreaker } = await import('../../../execution/circuit-breaker.js');
       return getGlobalCircuitBreaker();
     };
 
@@ -64,7 +64,7 @@ async function execute(args: string): Promise<string> {
 
         if (result.success) {
           try {
-            const { getGlobalPositionManager } = await import('../../../execution/position-manager');
+            const { getGlobalPositionManager } = await import('../../../execution/position-manager.js');
             const pm = getGlobalPositionManager();
             pm.updatePosition({
               platform: platform as any,
@@ -116,7 +116,7 @@ async function execute(args: string): Promise<string> {
 
         if (result.success) {
           try {
-            const { getGlobalPositionManager } = await import('../../../execution/position-manager');
+            const { getGlobalPositionManager } = await import('../../../execution/position-manager.js');
             const pm = getGlobalPositionManager();
             const existing = pm.getPositionsByPlatform(platform as any)
               .find(p => p.tokenId === marketId && p.status === 'open');
@@ -199,7 +199,7 @@ async function execute(args: string): Promise<string> {
         if (isNaN(totalSize) || totalSize <= 0) return 'Invalid total size.';
         if (isNaN(twapPrice) || twapPrice < 0.01 || twapPrice > 0.99) return 'Invalid price (0.01-0.99).';
 
-        const { createTwapOrder } = await import('../../../execution/twap');
+        const { createTwapOrder } = await import('../../../execution/twap.js');
         const twap = createTwapOrder(
           service,
           { platform, marketId, tokenId: marketId, side: side as 'buy' | 'sell', price: twapPrice },
@@ -224,7 +224,7 @@ async function execute(args: string): Promise<string> {
         if (isNaN(tp) || tp < 0.01 || tp > 0.99) return 'Invalid take-profit price (0.01-0.99).';
         if (isNaN(sl) || sl < 0.01 || sl > 0.99) return 'Invalid stop-loss price (0.01-0.99).';
 
-        const { createBracketOrder } = await import('../../../execution/bracket-orders');
+        const { createBracketOrder } = await import('../../../execution/bracket-orders.js');
         const bracket = createBracketOrder(service, {
           platform: platform as 'polymarket' | 'kalshi',
           marketId,
@@ -285,7 +285,7 @@ async function execute(args: string): Promise<string> {
           return 'Set POLY_PRIVATE_KEY, POLY_FUNDER_ADDRESS, POLY_API_KEY, POLY_API_SECRET, POLY_API_PASSPHRASE to redeem.';
         }
 
-        const { createAutoRedeemer } = await import('../../../execution/auto-redeem');
+        const { createAutoRedeemer } = await import('../../../execution/auto-redeem.js');
         const redeemer = createAutoRedeemer({
           polymarketAuth: { address: funderAddress, apiKey, apiSecret, apiPassphrase: passphrase },
           privateKey,

@@ -29,9 +29,9 @@ import { wrapSkillError } from '../../errors.js';
 
 const getSolanaModules = async () => {
   const [wallet, kamino, tokenlist] = await Promise.all([
-    import('../../../solana/wallet'),
-    import('../../../solana/kamino'),
-    import('../../../solana/tokenlist'),
+    import('../../../solana/wallet.js'),
+    import('../../../solana/kamino.js'),
+    import('../../../solana/tokenlist.js'),
   ]);
   return { wallet, kamino, tokenlist };
 };

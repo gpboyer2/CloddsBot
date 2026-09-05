@@ -370,13 +370,12 @@ export async function listRaydiumPoolsSdk(
     limit?: number;
   }
 ): Promise<RaydiumPoolInfoV2[]> {
-  // raydium.api.getPoolList() (the SDK's own wrapper) always returns
-  // { count: 0, data: [] } regardless of params — confirmed live against
-  // the installed 0.2.32-alpha SDK (every variation of type/sort/order
-  // tried, all empty). The raw HTTP endpoint below, hit directly with these
-  // exact param names, returns real data — same endpoint listRaydiumPools()
-  // already uses successfully, so this mirrors that proven-working call
-  // instead of going through the SDK wrapper.
+  // raydium.api.getPoolList()（SDK 自带的封装方法）无论传入什么参数，
+  // 总是返回 { count: 0, data: [] } —— 这是在实际安装的 0.2.32-alpha 版 SDK 上验证过的（尝试了 type/sort/order 的所有组合，结果均为空）。
+  // 而下方直接使用这些精确参数名请求原生 HTTP 接口，却能返回真实数据
+  // —— 这与 listRaydiumPools() 已经成功使用的接口完全相同，
+  // 因此这里照搬了那个经过验证可行的调用方式，
+  // 而不再走 SDK 的封装方法。
   const baseUrl = process.env.RAYDIUM_POOL_LIST_URL || 'https://api-v3.raydium.io/pools/info';
   const poolType = filters?.type === 'CLMM' ? 'concentrated'
     : filters?.type === 'AMM' ? 'standard'

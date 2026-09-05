@@ -30,7 +30,7 @@ export type {
   PythonExecResult,
   PythonProcess,
   BittensorPersistence,
-} from './types';
+} from './types.js';
 
 // Used by gateway/index.ts
 export { createBittensorService } from './service.js';

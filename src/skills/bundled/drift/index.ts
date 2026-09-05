@@ -9,8 +9,8 @@ import { wrapSkillError } from '../../errors.js';
 
 const getSolanaModules = async () => {
   const [wallet, drift] = await Promise.all([
-    import('../../../solana/wallet'),
-    import('../../../solana/drift'),
+    import('../../../solana/wallet.js'),
+    import('../../../solana/drift.js'),
   ]);
   return { wallet, drift };
 };
