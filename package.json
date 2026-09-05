@@ -94,7 +94,7 @@
     "@project-serum/anchor": "^0.26.0",
     "@pump-fun/pump-sdk": "1.36.0",
     "@pump-fun/pump-swap-sdk": "1.19.0",
-    "@raydium-io/raydium-sdk-v2": "^0.2.32-alpha",
+    "@raydium-io/raydium-sdk-v2": "^0.2.30-alpha",
     "@slack/bolt": "^3.17.1",
     "@solana/kit": "^5.0.0",
     "@solana/spl-token": "^0.4.14",
