@@ -58,6 +58,7 @@ vendor/
 # Development workspace
 workspace/
 .workbuddy/
+docs/note/
 
 # Large binary files (use GitHub releases)
 *.gif
