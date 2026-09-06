@@ -169,11 +169,13 @@ Clodds 的凭据安全基线是 **AES-256-GCM 加密存储**（密钥 `CLODDS_CR
 
 测试目录约定：`tests/unit/`（纯单元测试）、`tests/integration/`（集成测试）、`tests/mocks/`（mock 数据）、`tests/helpers/`（测试脚手架）。无凭证 / 无网络时测试要 `t.skip()` 自动跳过，不报错。
 
-需要原生模块支持：`postinstall` 会跑 `scripts/fix-native-bindings.js` 与 `scripts/fix-anchor-bn-export.js`，首次 `npm install` 后若原生绑定异常，重跑这两个脚本。
+需要原生模块支持：`postinstall` 会跑 `scripts/fix-native-bindings.js` 与 `scripts/fix-anchor-bn-export.js`，首次 `npm install` 后若原生绑定异常，重跑这两个脚本。但注意 `.npmrc` 里 `ignore-scripts=true` 会把所有安装脚本拦掉：sharp / better-sqlite3 等原生库不编译、transformers 向量模型不下载，启动时报 "Failed to load transformers.js model" 和 "bigint bindings" 属已知现象（有 ERROR 日志，不算静默降级）；要放开 ignore-scripts 会执行一批第三方安装脚本，必须先问用户拍板，不要自作主张改 `.npmrc`。
 
 ## 本地开发启动
 
 - 开发热重载：`npm run dev`（等价 `tsx watch src/index.ts`，启动 gateway + 全部服务）
+- 启动约需 1 分钟（行情源初始化），spinner 停在中间不是卡死。启动成功后 `printStartupInfo()`（`src/index.ts`）会打印完整信息面板：WebChat / 控制台 / 局域网地址 / 常用接口 / AI 模型 / 代理 / 数据库路径，别删这个面板；给面板补行时注意中文在终端占 2 列宽，`padEnd` 按字符数补必然错位，要按显示宽度补（项目里已有现成写法）。
+- 网关默认监听 `0.0.0.0`（见 `src/gateway/index.ts`，局域网可达），要仅本机访问就改那里的默认 host。
 - 单独起网关：`npm run gateway`
 - 单独起 worker：`npm run worker`
 - 交互式配置向导：`npm run onboard`（首次配置凭据 / 通道）
@@ -185,7 +187,10 @@ Clodds 的凭据安全基线是 **AES-256-GCM 加密存储**（密钥 `CLODDS_CR
 
 ## 配置与环境
 
-- 环境变量：复制 `.env.example` 为 `.env`（或放到 `~/.clodds/.env`）。必填只有 `ANTHROPIC_API_KEY`；至少一个消息通道（推荐 Telegram）才能交互。
+- 环境变量：复制 `.env.example` 为 `.env`（或放到 `~/.clodds/.env`）。必填只有 `ANTHROPIC_API_KEY`，缺了启动直接 `process.exit(1)`（`src/index.ts` 硬校验，一票否决）；至少一个消息通道（推荐 Telegram）才能交互。注意 dotenv 不覆盖已存在的变量，`~/.clodds/.env` 先加载、优先级更高。
+- AI 中转站：`ANTHROPIC_BASE_URL` / `OPENAI_BASE_URL` 一律写根地址、**不带 `/v1`**——Anthropic SDK 自己拼 `/v1/messages`，`src/providers/index.ts` 的 OpenAIProvider 自己拼 `/v1/chat/completions`，带了就变成 `/v1/v1/...` 直接 404。程序默认模型 `claude-opus-4-6` 在中转站上不一定存在，实际模型在 `~/.clodds/clodds.json` 的 `agents.defaults.model.primary` 里配（改 .env 没用，模型名不走环境变量）。
+- 中转站报 403 `无权访问 X 分组` ≠ key 坏：只是被请求的那个模型不在 key 允许的分组里。判断 key 可用性之前必须先 `GET /v1/models` 拉全模型列表逐个验证，禁止凭几个常见模型名 403 就下结论（踩过：claude-*/gpt-* 全 403 就认定 key 废了，实际 grok 分组是通的）。
+- 代理：Node 原生 fetch 不认 `HTTPS_PROXY`；`NODE_USE_ENV_PROXY` 又只在进程启动瞬间读一次（在 dotenv 加载 .env 之前），对 .env 里配的代理值永远无效。代理唯一生效点是 `src/utils/http.ts` 的 `installHttpClient()` 里装的 undici `EnvHttpProxyAgent`，别在别处再造第二套。注意 `ws` 库的 WebSocket 不走这个代理（全项目 22 处 `new WebSocket` 没有统一工厂），行情 WS 连不上先想到这一层。
 - 网关：`CLODDS_TOKEN`（API 访问令牌）、默认端口 `18789`、WebChat 在 `http://localhost:18789/webchat`。
 - 日志级别：`LOG_LEVEL=debug|info|warn|error`。
 - 凭据加密：`CLODDS_CREDENTIAL_KEY`（openssl rand -hex 32 生成）、`CLODDS_ESCROW_KEY`（ACP escrow 用，缺失时回退前者）。
@@ -343,4 +348,6 @@ Skills 是 Clodds 扩展能力的核心，分两套互补机制：
 3. 看构建是否生效：改了 TS 源码必须 `npm run build`；线上 / 常驻进程跑的是 `dist/`，改了源码不重新构建，修复不生效（最容易误判"修复没效果"）。
 4. 看 skill / feed 加载：用 `/skills` 看 loaded / failed / needs-config；某个 skill 失败先看它的 `gates`（env / 二进制 / 配置）是否满足，不要默认是代码 bug。
 5. 看外部连通性：某平台行情 / 下单没反应，先 grep 该平台客户端 / WebSocket 的断连、限流、429/418 日志；频繁请求会被权重 / IP 限制，需要节流与退避。
-6. 看改的代码是否真的进了运行态：多会话 / 多进程场景下，确认你改的文件就是正在跑的进程加载的那份，避免"改了 A 进程、查的是 B 进程"。
+6. 看 AI / 供应商：`health check failing` 反复刷先查 `src/providers/index.ts`——探活只准 `GET /v1/models`，禁止用真实模型名发请求（写死已停用 / 不存在的模型会永远失败还白花钱）；Provider 必须认 `*_BASE_URL` 环境变量。大坑：agents 走 `@anthropic-ai/sdk`（自动读 `ANTHROPIC_BASE_URL`），providers 是手写 fetch（要显式读环境变量），同一个进程两条路打到不同地址，表现为"AI 能用但健康检查一直失败"。
+7. 看类型错误：src 内隐式 any（如 `let gateway;` 没标类型）会直接挂 `npm run build`，必须修；`node_modules/ox` 的类型错是上游遗留，别去修也别为它改 tsconfig。
+8. 看改的代码是否真的进了运行态：多会话 / 多进程场景下，确认你改的文件就是正在跑的进程加载的那份，避免"改了 A 进程、查的是 B 进程"。
