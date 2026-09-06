@@ -1,8 +1,7 @@
 /**
- * Clodds - AI Assistant for Prediction Markets
- * Claude + Odds
+ * Clodds - 预测市场 AI 助手 / AI 交易终端（Claude + Odds）
  *
- * Entry point - starts the gateway and all services
+ * 程序入口：启动网关和全部服务
  */
 
 import { config as dotenvConfig } from 'dotenv';
@@ -21,7 +20,7 @@ import { logger } from './utils/logger';
 import { installHttpClient, configureHttpClient } from './utils/http';
 
 // =============================================================================
-// STARTUP PROGRESS INDICATOR
+// 启动进度显示
 // =============================================================================
 
 interface StartupStep {
@@ -31,75 +30,52 @@ interface StartupStep {
 }
 
 const startupSteps: StartupStep[] = [];
-let spinnerInterval: NodeJS.Timeout | null = null;
-const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
-let spinnerFrame = 0;
 
+/**
+ * 登记一个启动步骤（只登记不打印，等有结果再打）。
+ * ⚠️ 为什么不做"转圈动画 + 整屏重绘"：启动期间 pino 日志会不停往终端插行，
+ * 重绘是按"我们自己打了几行"来倒着擦屏的，日志一插队行数就对不上，
+ * 擦错位置就会留下一大片空白（2026-09-06 实际踩过，用户截图里全是空行）。
+ * 所以这里一律"只追加、不擦屏"：每个步骤完成/失败时打一行，永不回头改。
+ */
 function addStep(name: string): number {
   const idx = startupSteps.push({ name, status: 'pending' }) - 1;
   return idx;
 }
 
+/**
+ * 更新步骤状态。只有 done / failed / skipped 会真正打印一行，
+ * running 状态不打印（否则每个步骤会出现"转圈一行 + 完成一行"两行）。
+ * 非 TTY（后台 / 容器跑日志收集）也照样打印，日志里能看到每一步结果。
+ */
 function updateStep(idx: number, status: StartupStep['status'], detail?: string): void {
-  if (startupSteps[idx]) {
-    startupSteps[idx].status = status;
-    if (detail) startupSteps[idx].detail = detail;
+  const step = startupSteps[idx];
+  if (!step) return;
+  step.status = status;
+  if (detail) step.detail = detail;
+
+  let icon = '';
+  let color = '';
+  switch (status) {
+    case 'done':
+      icon = '✓';
+      color = '\x1b[32m'; // 绿
+      break;
+    case 'failed':
+      icon = '✗';
+      color = '\x1b[31m'; // 红
+      break;
+    case 'skipped':
+      icon = '○';
+      color = '\x1b[90m'; // 灰
+      break;
+    default:
+      return; // pending / running 不打印
   }
-  renderProgress();
-}
-
-function renderProgress(): void {
-  // Only render in TTY mode
-  if (!process.stdout.isTTY) return;
-
-  // Clear previous lines
-  const linesToClear = startupSteps.length + 2;
-  process.stdout.write(`\x1b[${linesToClear}A\x1b[0J`);
-
-  console.log('\n\x1b[1m🚀 Starting Clodds...\x1b[0m\n');
-
-  for (const step of startupSteps) {
-    let icon: string;
-    let color: string;
-    switch (step.status) {
-      case 'done':
-        icon = '✓';
-        color = '\x1b[32m'; // green
-        break;
-      case 'failed':
-        icon = '✗';
-        color = '\x1b[31m'; // red
-        break;
-      case 'skipped':
-        icon = '○';
-        color = '\x1b[90m'; // gray
-        break;
-      case 'running':
-        icon = spinnerFrames[spinnerFrame % spinnerFrames.length];
-        color = '\x1b[36m'; // cyan
-        break;
-      default:
-        icon = '○';
-        color = '\x1b[90m'; // gray
-    }
-    const detail = step.detail ? ` \x1b[90m(${step.detail})\x1b[0m` : '';
-    console.log(`  ${color}${icon}\x1b[0m ${step.name}${detail}`);
-  }
-}
-
-function startSpinner(): void {
-  if (!process.stdout.isTTY) return;
-  spinnerInterval = setInterval(() => {
-    spinnerFrame = (spinnerFrame + 1) % spinnerFrames.length;
-    renderProgress();
-  }, 80);
-}
-
-function stopSpinner(): void {
-  if (spinnerInterval) {
-    clearInterval(spinnerInterval);
-    spinnerInterval = null;
-  }
+  // 局部变量不能也叫 detail：函数参数里已经有 detail（新传入的补充说明），
+  // 重名会报 TS2300 重复声明，这里展示的是 step 上存的那份，改名 detailText 区分。
+  const detailText = step.detail ? ` \x1b[90m(${step.detail})\x1b[0m` : '';
+  console.log(`  ${color}${icon}\x1b[0m ${step.name}${detailText}`);
 }
 
 // =============================================================================
@@ -107,19 +83,19 @@ function stopSpinner(): void {
 // =============================================================================
 
 /**
- * Validate required environment variables and configuration
- * Provides clear error messages for common setup issues
+ * 校验启动必需的环境变量和配置
+ * 对常见的配置问题给出能直接照做的中文提示
  */
 function validateStartupRequirements(): void {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  // Check for Anthropic API key (required for AI functionality)
+  // AI 大模型的 Key 是启动硬性要求，缺了 AI 完全没法用
   if (!process.env.ANTHROPIC_API_KEY) {
     errors.push(
-      'ANTHROPIC_API_KEY is not set. The AI agent will not function.\n' +
-      '  Fix: Add ANTHROPIC_API_KEY=sk-ant-... to your .env file\n' +
-      '  Or run: clodds onboard'
+      '没有配置 ANTHROPIC_API_KEY，AI 智能体没法工作。\n' +
+      '  修法：在 .env 文件里加一行 ANTHROPIC_API_KEY=sk-...\n' +
+      '  或者运行：clodds onboard'
     );
   }
 
@@ -144,32 +120,32 @@ function validateStartupRequirements(): void {
       } else {
         writeFileSync(envPath, `CLODDS_CREDENTIAL_KEY=${generated}\n`, { mode: 0o600 });
       }
-      logger.info('Auto-generated CLODDS_CREDENTIAL_KEY for credential encryption');
+      logger.info('已自动生成凭证加密密钥 CLODDS_CREDENTIAL_KEY');
     } catch (err) {
-      logger.warn({ err }, 'Could not persist CLODDS_CREDENTIAL_KEY to .env file — key is set for this session only');
+      logger.warn({ err }, 'CLODDS_CREDENTIAL_KEY 没能写进 .env 文件——这把密钥只在本次运行有效');
     }
   }
 
-  // Check for common channel configurations (warnings only)
+  // 检查消息通道配置（只提醒，不拦启动）
   if (!process.env.TELEGRAM_BOT_TOKEN && !process.env.DISCORD_BOT_TOKEN) {
     warnings.push(
-      'No messaging channel configured (TELEGRAM_BOT_TOKEN or DISCORD_BOT_TOKEN).\n' +
-      '  WebChat at http://localhost:18789/webchat will still work.'
+      '没有配置任何消息通道（TELEGRAM_BOT_TOKEN 或 DISCORD_BOT_TOKEN）。\n' +
+      '  网页版对话仍然可用：http://localhost:18789/webchat'
     );
   }
 
-  // Log warnings
+  // 打印警告
   for (const warning of warnings) {
     logger.warn(warning);
   }
 
-  // Exit with errors if critical requirements missing
+  // 有关键配置缺失就退出
   if (errors.length > 0) {
-    logger.error('Clodds Startup Failed');
+    logger.error('Clodds 启动失败');
     for (const error of errors) {
       logger.error(error);
     }
-    logger.error('Run "clodds doctor" for full diagnostics.');
+    logger.error('想看完整诊断请运行：clodds doctor');
     process.exit(1);
   }
 }
@@ -215,7 +191,7 @@ function printStartupInfo(config: Awaited<ReturnType<typeof loadConfig>>): void 
   const kv = (label: string, value: string) => console.log(`  ${pad(label)}${value}`);
 
   console.log(`\n${line}`);
-  console.log('\x1b[32m\x1b[1m  ✓ Clodds is running!\x1b[0m');
+  console.log('\x1b[32m\x1b[1m  ✓ Clodds 启动成功！\x1b[0m');
   console.log(line);
 
   console.log('\n  \x1b[1m【访问入口】\x1b[0m');
@@ -248,7 +224,7 @@ function printStartupInfo(config: Awaited<ReturnType<typeof loadConfig>>): void 
   kv('消息通道', channels);
 
   console.log(line);
-  console.log('\n  Press Ctrl+C to stop\n');
+  console.log('\n  按 Ctrl+C 停止\n');
 }
 
 // =============================================================================
@@ -259,53 +235,45 @@ async function main() {
   installHttpClient();
 
   process.on('unhandledRejection', (reason) => {
-    logger.error({ reason }, 'Unhandled promise rejection');
+    logger.error({ reason }, '未捕获的 Promise 异常');
   });
   process.on('uncaughtException', (error) => {
-    logger.error({ error }, 'Uncaught exception');
+    logger.error({ error }, '未捕获的异常');
     process.exit(1);
   });
 
-  // Initialize progress display
+  // 初始化进度显示
   const isTTY = process.stdout.isTTY;
   if (isTTY) {
-    // Pre-populate steps for visual display
-    const idxValidate = addStep('Validating configuration');
-    const idxConfig = addStep('Loading config');
-    const idxDatabase = addStep('Connecting to database');
-    const idxFeeds = addStep('Starting market feeds');
-    const idxChannels = addStep('Connecting channels');
-    const idxGateway = addStep('Starting HTTP gateway');
+    // 登记六个启动步骤（只有完成/失败时才打印一行，原因见 updateStep 的注释）
+    const idxValidate = addStep('校验配置');
+    const idxConfig = addStep('加载配置');
+    const idxDatabase = addStep('连接数据库');
+    const idxFeeds = addStep('启动行情源');
+    const idxChannels = addStep('连接消息通道');
+    const idxGateway = addStep('启动 HTTP 网关');
 
-    // Print initial state
-    console.log('\n\x1b[1m🚀 Starting Clodds...\x1b[0m\n');
-    for (const step of startupSteps) {
-      console.log(`  \x1b[90m○\x1b[0m ${step.name}`);
-    }
+    console.log('\n\x1b[1m🚀 正在启动 Clodds...\x1b[0m\n');
 
-    startSpinner();
-
-    // Step 1: Validate
+    // 第 1 步：校验
     updateStep(idxValidate, 'running');
     try {
       validateStartupRequirements();
       updateStep(idxValidate, 'done');
     } catch (e) {
       updateStep(idxValidate, 'failed');
-      stopSpinner();
       throw e;
     }
 
-    // Step 2: Load config
+    // 第 2 步：加载配置
     updateStep(idxConfig, 'running');
     let config;
     try {
       config = await loadConfig();
       configureHttpClient(config.http);
-      updateStep(idxConfig, 'done', `port ${config.gateway.port}`);
+      updateStep(idxConfig, 'done', `端口 ${config.gateway.port}`);
     } catch (e) {
       updateStep(idxConfig, 'failed');
-      stopSpinner();
       throw e;
     }
 
@@ -327,7 +295,6 @@ async function main() {
       updateStep(idxChannels, 'done');
     } catch (e) {
       updateStep(idxDatabase, 'failed');
-      stopSpinner();
       // 这里没有 gateway.stop()：createGateway 只要抛错就说明它压根没返回实例，
       // 没有东西需要清理，原来那句 `if (gateway) await gateway.stop()` 是永远走不到的死代码。
       throw e;
@@ -338,17 +305,13 @@ async function main() {
       updateStep(idxGateway, 'done', `http://localhost:${config.gateway.port}`);
     } catch (e) {
       updateStep(idxGateway, 'failed');
-      stopSpinner();
       if (gateway) {
-        try { await gateway.stop(); } catch { /* ignore cleanup errors */ }
+        try { await gateway.stop(); } catch { /* 清理失败不影响主流程 */ }
       }
       throw e;
     }
 
-    stopSpinner();
-    renderProgress();
-
-    // Final success message
+    // 启动成功，打印信息面板
     printStartupInfo(config);
 
     let shuttingDown = false;
@@ -356,20 +319,19 @@ async function main() {
     const shutdown = async () => {
       if (shuttingDown) return;
       shuttingDown = true;
-      stopSpinner(); // Clear spinner if still running
-      console.log('\n\x1b[33mShutting down...\x1b[0m');
+      console.log('\n\x1b[33m正在关闭...\x1b[0m');
       try {
         await Promise.race([
           gateway.stop(),
           new Promise<void>((resolve) => setTimeout(() => {
-            logger.warn('Shutdown timed out after 15s, forcing exit');
+            logger.warn('关闭超过 15 秒还没完成，强制退出');
             resolve();
           }, SHUTDOWN_TIMEOUT_MS)),
         ]);
       } catch (e) {
-        logger.error({ err: e }, 'Error during shutdown');
+        logger.error({ err: e }, '关闭过程出错');
       }
-      console.log('\x1b[32mGoodbye!\x1b[0m\n');
+      console.log('\x1b[32m再见！\x1b[0m\n');
       process.exit(0);
     };
 
@@ -377,20 +339,20 @@ async function main() {
     process.on('SIGTERM', shutdown);
 
   } else {
-    // Non-TTY mode: simple logging
-    logger.info('Starting Clodds...');
+    // 非 TTY 模式（后台 / 容器）：简单打日志
+    logger.info('正在启动 Clodds...');
 
     validateStartupRequirements();
 
     const config = await loadConfig();
     configureHttpClient(config.http);
-    logger.info({ port: config.gateway.port }, 'Config loaded');
+    logger.info({ port: config.gateway.port }, '配置加载完成');
 
     const gateway = await createGateway(config);
     await gateway.start();
 
-    logger.info('Clodds is running!');
-    // 非 TTY（后台/容器）也要把信息面板打出来，否则日志里只有一行 "Clodds is running!"，
+    logger.info('Clodds 启动成功！');
+    // 非 TTY（后台/容器）也要把信息面板打出来，否则日志里只有一行启动成功，
     // 想知道端口和接口还是得翻代码。面板走 console.log，pino 日志走 logger，互不影响。
     printStartupInfo(config);
 
@@ -399,18 +361,17 @@ async function main() {
     const shutdown = async () => {
       if (shuttingDown) return;
       shuttingDown = true;
-      stopSpinner(); // Clear spinner if still running
-      logger.info('Shutting down...');
+      logger.info('正在关闭...');
       try {
         await Promise.race([
           gateway.stop(),
           new Promise<void>((resolve) => setTimeout(() => {
-            logger.warn('Shutdown timed out after 15s, forcing exit');
+            logger.warn('关闭超过 15 秒还没完成，强制退出');
             resolve();
           }, SHUTDOWN_TIMEOUT_MS)),
         ]);
       } catch (e) {
-        logger.error({ err: e }, 'Error during shutdown');
+        logger.error({ err: e }, '关闭过程出错');
       }
       process.exit(0);
     };
@@ -421,7 +382,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  stopSpinner();
-  logger.error({ err }, 'Fatal error');
+  logger.error({ err }, '启动失败（致命错误）');
   process.exit(1);
 });
