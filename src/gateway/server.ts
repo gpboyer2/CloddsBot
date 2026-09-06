@@ -857,6 +857,7 @@ export function createServer(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clodds</title>
+  <link rel="icon" href="/webchat/logo.png" type="image/png">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2121,6 +2122,7 @@ export function createServer(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Clodds</title>
+  <link rel="icon" href="/webchat/logo.png" type="image/png">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2371,6 +2373,7 @@ export function createServer(
 <html>
 <head>
   <title>Clodds 绩效看板</title>
+  <link rel="icon" href="/webchat/logo.png" type="image/png">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
