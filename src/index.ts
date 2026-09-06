@@ -8,7 +8,7 @@
 import { config as dotenvConfig } from 'dotenv';
 import { randomBytes } from 'crypto';
 import { existsSync, mkdirSync, readFileSync, appendFileSync, writeFileSync } from 'fs';
-import { homedir } from 'os';
+import { homedir, networkInterfaces } from 'os';
 import { join } from 'path';
 
 // Load .env from ~/.clodds/.env first (where onboard writes), then CWD fallback
@@ -16,7 +16,7 @@ dotenvConfig({ path: join(homedir(), '.clodds', '.env') });
 dotenvConfig();
 
 import { createGateway } from './gateway/index';
-import { loadConfig } from './utils/config';
+import { loadConfig, resolveConfigPath, resolveStateDir, resolveWorkspaceDir } from './utils/config';
 import { logger } from './utils/logger';
 import { installHttpClient, configureHttpClient } from './utils/http';
 
@@ -175,6 +175,83 @@ function validateStartupRequirements(): void {
 }
 
 // =============================================================================
+// STARTUP INFO PANEL
+// =============================================================================
+
+/**
+ * 启动成功后打印一份完整的信息面板：访问地址、端口、常用接口、关键配置。
+ * 为什么必须有：以前成功后只打一行 WebChat 地址，想知道"后端有哪些接口、数据库在哪、
+ * 用的哪个模型"都得翻代码，这里启动时一次性全部说清楚，方便维护者直接照着用。
+ * 注意：按项目规范（AGENTS.md「API Key 管理」），Key 明文打印，不做任何脱敏。
+ * TTY（yarn dev 前台）和非 TTY（后台/容器）两条启动路径都要调用它，别只加一边。
+ */
+function printStartupInfo(config: Awaited<ReturnType<typeof loadConfig>>): void {
+  const port = config.gateway.port;
+  const base = `http://localhost:${port}`;
+
+  // 网关默认监听 0.0.0.0（见 src/gateway/index.ts 第 141 行），局域网内其他设备也能访问，
+  // 所以这里把本机局域网 IP 列出来，方便手机 / 其他机器直接连。
+  const lanIps: string[] = [];
+  for (const addresses of Object.values(networkInterfaces())) {
+    for (const addr of addresses || []) {
+      if (addr.family === 'IPv4' && !addr.internal) lanIps.push(addr.address);
+    }
+  }
+
+  const aiKey = process.env.ANTHROPIC_API_KEY || '(未配置)';
+  const aiBaseUrl = process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com（官方直连）';
+  const proxy = process.env.HTTPS_PROXY || process.env.https_proxy || process.env.HTTP_PROXY || process.env.http_proxy || '(未配置，外部行情接口可能连不上)';
+  const channels = [
+    'WebChat（内置）',
+    process.env.TELEGRAM_BOT_TOKEN ? 'Telegram ✅' : 'Telegram（未配置）',
+    process.env.DISCORD_BOT_TOKEN ? 'Discord ✅' : 'Discord（未配置）',
+  ].join('  |  ');
+
+  const line = '\x1b[90m' + '─'.repeat(64) + '\x1b[0m';
+  // 终端里中文占 2 列、英文占 1 列，padEnd 只按字符个数补空格，混排必然对不齐，
+  // 所以自己按"显示宽度"补：codePoint > 0xff 的一律算 2 列。
+  const displayWidth = (s: string) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 0xff ? 2 : 1), 0);
+  const pad = (label: string) => label + ' '.repeat(Math.max(1, 26 - displayWidth(label)));
+  const kv = (label: string, value: string) => console.log(`  ${pad(label)}${value}`);
+
+  console.log(`\n${line}`);
+  console.log('\x1b[32m\x1b[1m  ✓ Clodds is running!\x1b[0m');
+  console.log(line);
+
+  console.log('\n  \x1b[1m【访问入口】\x1b[0m');
+  kv('WebChat 对话', `\x1b[36m${base}/webchat\x1b[0m`);
+  kv('控制台', `${base}/dashboard`);
+  if (lanIps.length > 0) {
+    kv('局域网访问', `http://${lanIps[0]}:${port}/webchat  （手机/其他电脑用这个）`);
+  }
+  kv('监听范围', `0.0.0.0:${port}（所有网卡，局域网可达，别暴露到公网）`);
+  kv('进程 PID', `${process.pid}（停止：kill ${process.pid}）`);
+
+  console.log('\n  \x1b[1m【常用接口】\x1b[0m');
+  kv('GET /health', '健康检查（含数据库、内存状态）');
+  kv('GET /api/commands', '可用指令列表');
+  kv('POST /hooks/agent', '直接驱动 AI，body: {"message":"你好"}');
+  kv('GET /api/chat/sessions', '聊天会话列表');
+  kv('GET /market-index/search', '跨平台市场搜索，如 ?q=bitcoin');
+  kv('GET /api/performance', '绩效统计');
+  kv('GET /api/config/env', '环境变量查看/修改');
+  kv('GET /metrics', '运行指标');
+
+  console.log('\n  \x1b[1m【关键配置】\x1b[0m');
+  kv('AI 模型', String(config.agents.defaults.model.primary));
+  kv('AI 中转站', aiBaseUrl);
+  kv('AI Key', aiKey);
+  kv('本机代理', proxy);
+  kv('数据库文件', join(resolveStateDir(), 'clodds.db'));
+  kv('配置文件', resolveConfigPath());
+  kv('工作目录', resolveWorkspaceDir());
+  kv('消息通道', channels);
+
+  console.log(line);
+  console.log('\n  Press Ctrl+C to stop\n');
+}
+
+// =============================================================================
 // MAIN
 // =============================================================================
 
@@ -272,15 +349,7 @@ async function main() {
     renderProgress();
 
     // Final success message
-    console.log('\n\x1b[32m\x1b[1m✓ Clodds is running!\x1b[0m');
-    console.log(`\n  WebChat: \x1b[36mhttp://localhost:${config.gateway.port}/webchat\x1b[0m`);
-    if (process.env.TELEGRAM_BOT_TOKEN) {
-      console.log('  Telegram: \x1b[32mConnected\x1b[0m');
-    }
-    if (process.env.DISCORD_BOT_TOKEN) {
-      console.log('  Discord: \x1b[32mConnected\x1b[0m');
-    }
-    console.log('\n  Press Ctrl+C to stop\n');
+    printStartupInfo(config);
 
     let shuttingDown = false;
     const SHUTDOWN_TIMEOUT_MS = 15000;
@@ -321,6 +390,9 @@ async function main() {
     await gateway.start();
 
     logger.info('Clodds is running!');
+    // 非 TTY（后台/容器）也要把信息面板打出来，否则日志里只有一行 "Clodds is running!"，
+    // 想知道端口和接口还是得翻代码。面板走 console.log，pino 日志走 logger，互不影响。
+    printStartupInfo(config);
 
     let shuttingDown = false;
     const SHUTDOWN_TIMEOUT_MS = 15000;
