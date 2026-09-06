@@ -66,6 +66,6 @@ export function createAltDataRouter(deps: AltDataRouterDeps): Router {
     }
   });
 
-  logger.info('Alt Data API routes initialized');
+  logger.info('另类数据接口路由已初始化');
   return router;
 }

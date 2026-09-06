@@ -98,9 +98,9 @@ export function createFundingRatesFeed(
 
   function start(): void {
     if (timer) return;
-    poll().catch((err) => { logger.error({ error: err }, '[funding-rates] Feed poll failed'); });
-    timer = setInterval(() => { poll().catch((err) => { logger.error({ error: err }, '[funding-rates] Feed poll failed'); }); }, intervalMs);
-    logger.info({ intervalMs, symbols }, '[funding-rates] Feed started');
+    poll().catch((err) => { logger.error({ error: err }, '[资金费率] 数据源拉取失败'); });
+    timer = setInterval(() => { poll().catch((err) => { logger.error({ error: err }, '[资金费率] 数据源拉取失败'); }); }, intervalMs);
+    logger.info({ intervalMs, symbols }, '[资金费率] 数据源已启动');
   }
 
   function stop(): void {

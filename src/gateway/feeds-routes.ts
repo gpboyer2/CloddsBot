@@ -181,6 +181,6 @@ export function createFeedsRouter(deps: FeedsRouterDeps): Router {
     }
   });
 
-  logger.info('Feeds Manager API routes initialized');
+  logger.info('行情源管理接口路由已初始化');
   return router;
 }

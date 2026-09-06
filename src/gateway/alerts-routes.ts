@@ -190,6 +190,6 @@ export function createAlertsRouter(deps: AlertsRouterDeps): Router {
     }
   });
 
-  logger.info('Alerts API routes initialized');
+  logger.info('预警接口路由已初始化');
   return router;
 }

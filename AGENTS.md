@@ -6,7 +6,7 @@
 
 代码主要由 AI 编写，你在本地维护一个 Clodds 的 fork / clone（`alsk1992/CloddsBot` 的上游派生）。你本人也会直接改代码，可能和多个 AI 会话同时在同一个分支上操作。维护者的操作系统不确定（macOS / Windows 均可能）。
 
-项目是什么：Clodds —— 开源 AI 交易终端（Claude + Odds）。后端 TypeScript（tsx 运行、tsc 编译），接入 **21 个消息通道**（Telegram / Discord / Slack / WhatsApp / Matrix / WebChat 等）、**10 个预测市场 + 7 个期货交易所**（含 Solana 链上 perps），内置 **4 个 AI 智能体** 与 **119 个 skills**，统一策略与风控层，多平台执行（Polymarket / Kalshi / Betfair / Binance / Bybit / Hyperliquid / Solana DEX / EVM DEX），另有 Bittensor 挖矿、x402 支付、Agent 论坛 / 市场、Token 发射等。数据持久化：本地 SQLite（sql.js / better-sqlite3）、语义记忆 LanceDB、分析用 PostgreSQL。还包含一段 Rust 组件（`rust/fast-broadcast`）做高频广播。
+项目是什么：Clodds —— 开源 AI 交易终端（Claude + Odds）。后端 TypeScript（tsx 运行、tsc 编译），接入 21 个消息通道（Telegram / Discord / Slack / WhatsApp / Matrix / WebChat 等）、10 个预测市场 + 7 个期货交易所（含 Solana 链上 perps），内置 4 个 AI 智能体 与 119 个 skills，统一策略与风控层，多平台执行（Polymarket / Kalshi / Betfair / Binance / Bybit / Hyperliquid / Solana DEX / EVM DEX），另有 Bittensor 挖矿、x402 支付、Agent 论坛 / 市场、Token 发射等。数据持久化：本地 SQLite（sql.js / better-sqlite3）、语义记忆 LanceDB、分析用 PostgreSQL。还包含一段 Rust 组件（`rust/fast-broadcast`）做高频广播。
 
 所有地址、合约、代币、平台接入点的细节，先查 `docs/` 下对应文档（`ARCHITECTURE.md` / `TRADING.md` / `RISK_MANAGEMENT.md` / `SECURITY_AUDIT.md` / `SKILLS.md` 等），不要凭记忆编。
 
@@ -94,13 +94,13 @@
 
 ## 凭据与敏感信息管理
 
-Clodds 的凭据安全基线是 **AES-256-GCM 加密存储**（密钥 `CLODDS_CREDENTIAL_KEY`，Escrow 密钥对用 `CLODDS_ESCROW_KEY`），这是项目的安全模型，必须遵守。具体要求：
+Clodds 的凭据安全基线是 AES-256-GCM 加密存储（密钥 `CLODDS_CREDENTIAL_KEY`，Escrow 密钥对用 `CLODDS_ESCROW_KEY`），这是项目的安全模型，必须遵守。具体要求：
 
 1. 不要为了"调试方便"擅自把凭据改成明文存储、去掉加密、或回退到明文列。存储层 (`src/credentials/`) 的加密是项目红线，排查凭据问题时通过运行时解密后的日志 / 调试接口查看，而不是改存储层。
 2. 不要把 apiKey / 私钥 / passphrase / 签名 / webhook 密钥等敏感值明文打印到会被用户看到的消息通道（Telegram / Discord / WebChat 等）——这些是可被他人读取的地方。服务端日志里也要避免把完整密钥原样落盘。
 3. 需要定位凭据相关问题时，优先依赖结构化日志（带脱敏后的标识，如前缀 / 后四位）和运行时解密接口，而不是全文回显。
 
-> 说明：这条与 ppll-polymarket 模板里的"明文存储、禁止加密"约定是**相反**的。clodds 本身是带安全审计文档的开源项目，明文存储会直接破坏它的安全模型，因此这里按 clodds 的真实设计适配。如果你确实想在本地调试环境临时明文，告诉我，我再单独处理。
+> 说明：这条与 ppll-polymarket 模板里的"明文存储、禁止加密"约定是相反的。clodds 本身是带安全审计文档的开源项目，明文存储会直接破坏它的安全模型，因此这里按 clodds 的真实设计适配。如果你确实想在本地调试环境临时明文，告诉我，我再单独处理。
 
 ## Git 操作限制
 
@@ -163,7 +163,7 @@ Clodds 的凭据安全基线是 **AES-256-GCM 加密存储**（密钥 `CLODDS_CR
 | 命令 | 作用 |
 |---|---|
 | `npm run typecheck` | `tsc --noEmit` 类型检查 |
-| `npm test` | 跑 `tests/**/*.test.ts`（`node --test` + tsx） |
+| `npm test` | 跑 `tests//*.test.ts`（`node --test` + tsx） |
 | `npm run build` | `tsc` 编译 + 拷贝 `src/skills/bundled` 的 `SKILL.md` 到 `dist` |
 | `npm run ci` | 以上三连（typecheck + test + build），提交前必跑 |
 
@@ -188,7 +188,7 @@ Clodds 的凭据安全基线是 **AES-256-GCM 加密存储**（密钥 `CLODDS_CR
 ## 配置与环境
 
 - 环境变量：复制 `.env.example` 为 `.env`（或放到 `~/.clodds/.env`）。必填只有 `ANTHROPIC_API_KEY`，缺了启动直接 `process.exit(1)`（`src/index.ts` 硬校验，一票否决）；至少一个消息通道（推荐 Telegram）才能交互。注意 dotenv 不覆盖已存在的变量，`~/.clodds/.env` 先加载、优先级更高。
-- AI 中转站：`ANTHROPIC_BASE_URL` / `OPENAI_BASE_URL` 一律写根地址、**不带 `/v1`**——Anthropic SDK 自己拼 `/v1/messages`，`src/providers/index.ts` 的 OpenAIProvider 自己拼 `/v1/chat/completions`，带了就变成 `/v1/v1/...` 直接 404。程序默认模型 `claude-opus-4-6` 在中转站上不一定存在，实际模型在 `~/.clodds/clodds.json` 的 `agents.defaults.model.primary` 里配（改 .env 没用，模型名不走环境变量）。
+- AI 中转站：`ANTHROPIC_BASE_URL` / `OPENAI_BASE_URL` 一律写根地址、不带 `/v1`——Anthropic SDK 自己拼 `/v1/messages`，`src/providers/index.ts` 的 OpenAIProvider 自己拼 `/v1/chat/completions`，带了就变成 `/v1/v1/...` 直接 404。程序默认模型 `claude-opus-4-6` 在中转站上不一定存在，实际模型在 `~/.clodds/clodds.json` 的 `agents.defaults.model.primary` 里配（改 .env 没用，模型名不走环境变量）。
 - 中转站报 403 `无权访问 X 分组` ≠ key 坏：只是被请求的那个模型不在 key 允许的分组里。判断 key 可用性之前必须先 `GET /v1/models` 拉全模型列表逐个验证，禁止凭几个常见模型名 403 就下结论（踩过：claude-*/gpt-* 全 403 就认定 key 废了，实际 grok 分组是通的）。
 - 代理：Node 原生 fetch 不认 `HTTPS_PROXY`；`NODE_USE_ENV_PROXY` 又只在进程启动瞬间读一次（在 dotenv 加载 .env 之前），对 .env 里配的代理值永远无效。代理唯一生效点是 `src/utils/http.ts` 的 `installHttpClient()` 里装的 undici `EnvHttpProxyAgent`，别在别处再造第二套。注意 `ws` 库的 WebSocket 不走这个代理（全项目 22 处 `new WebSocket` 没有统一工厂），行情 WS 连不上先想到这一层。
 - 网关：`CLODDS_TOKEN`（API 访问令牌）、默认端口 `18789`、WebChat 在 `http://localhost:18789/webchat`。
@@ -270,8 +270,8 @@ ppll-clodds-bot/
 
 Skills 是 Clodds 扩展能力的核心，分两套互补机制：
 
-1. **SKILL.md（提示技能）** — 带 YAML frontmatter 的 Markdown，注入到 AI system prompt。由 `src/skills/loader.ts` 加载。
-2. **TypeScript handler** — 带 `handle(args)` 的代码模块，由 `src/skills/executor.ts` 通过动态 `import()` 懒加载。
+1. SKILL.md（提示技能） — 带 YAML frontmatter 的 Markdown，注入到 AI system prompt。由 `src/skills/loader.ts` 加载。
+2. TypeScript handler — 带 `handle(args)` 的代码模块，由 `src/skills/executor.ts` 通过动态 `import()` 懒加载。
 
 两者都向后兼容 OpenClaw 格式的 SKILL.md。
 
@@ -308,6 +308,7 @@ Skills 是 Clodds 扩展能力的核心，分两套互补机制：
 
 - 统一用 pino：`src/utils/logger.ts` 导出的 `logger`，或各模块 `src/logging/` 下的带标签 logger（`createLogger(tag)` 风格）。
 - 禁止 `console.log` 到处打、自造日志通道；需要结构化排查信息时带 tag + 关键变量。
+- 日志文案一律用中文（用户是中文用户，启动面板、INFO/WARN/ERROR 都要让中文用户直接看懂）：新增日志禁止写英文句子；改到老代码里 existing 英文日志时顺手翻译成中文。技术名词（Polymarket、WebSocket、skill 等专有名词）保留英文。
 
 ### 配置
 

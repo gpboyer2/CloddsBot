@@ -72,7 +72,7 @@ export function initPredictions(database: Database): void {
   db = database;
   ensureTablesExist();
   initialized = true;
-  logger.info('ACP Predictions initialized');
+  logger.info('ACP 预测持久化已初始化');
 }
 
 function getDb(): Database {

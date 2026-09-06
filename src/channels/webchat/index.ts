@@ -320,7 +320,7 @@ export function createWebChatChannel(
 
   return {
     start(wss: WebSocketServer): void {
-      logger.info('WebChat: Starting channel');
+      logger.info('WebChat：正在启动通道');
 
       wssRef = wss;
 
@@ -366,7 +366,7 @@ export function createWebChatChannel(
         }
       }, 60000); // Check every minute
 
-      logger.info('WebChat: Channel started');
+      logger.info('WebChat：通道已启动');
     },
 
     stop(): void {

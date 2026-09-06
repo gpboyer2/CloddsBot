@@ -511,7 +511,7 @@ export function createSkillManager(workspacePath?: string, config?: SkillManager
       }
     }
 
-    logger.info(`Loaded ${skillsMap.size} skills`);
+    logger.info(`已加载 ${skillsMap.size} 个 skill`);
   };
 
   /**

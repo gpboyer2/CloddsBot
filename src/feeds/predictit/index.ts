@@ -66,7 +66,7 @@ export async function createPredictItFeed(): Promise<PredictItFeed> {
       lastFetch = now;
       return marketCache;
     } catch (error) {
-      logger.error('PredictIt fetch error:', error);
+      logger.error('PredictIt 请求失败：', error);
       return marketCache;
     }
   }
@@ -96,7 +96,7 @@ export async function createPredictItFeed(): Promise<PredictItFeed> {
   }
 
   emitter.connect = async () => {
-    logger.info('PredictIt feed connected (read-only)');
+    logger.info('PredictIt 行情源已连接（只读）');
     await fetchAllMarkets();
   };
 

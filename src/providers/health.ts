@@ -104,7 +104,7 @@ export function createProviderHealthMonitor(
       }, config.intervalMs);
       if (timer.unref) timer.unref();
 
-      logger.info({ intervalMs: config.intervalMs }, 'Provider health monitor started');
+      logger.info({ intervalMs: config.intervalMs }, 'AI 供应商健康监控已启动');
     },
 
     stop() {

@@ -80,9 +80,9 @@ export function createFearGreedFeed(
   function start(): void {
     if (timer) return;
     // Initial poll
-    poll().catch((err) => { logger.error({ error: err }, '[fear-greed] Feed poll failed'); });
-    timer = setInterval(() => { poll().catch((err) => { logger.error({ error: err }, '[fear-greed] Feed poll failed'); }); }, intervalMs);
-    logger.info({ intervalMs }, '[fear-greed] Feed started');
+    poll().catch((err) => { logger.error({ error: err }, '[恐惧贪婪指数] 数据源拉取失败'); });
+    timer = setInterval(() => { poll().catch((err) => { logger.error({ error: err }, '[恐惧贪婪指数] 数据源拉取失败'); }); }, intervalMs);
+    logger.info({ intervalMs }, '[恐惧贪婪指数] 数据源已启动');
   }
 
   function stop(): void {

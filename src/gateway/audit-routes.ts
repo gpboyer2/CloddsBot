@@ -50,7 +50,7 @@ export function createAuditRouter(): Router {
     }
   });
 
-  logger.info('Audit API routes initialized');
+  logger.info('审计接口路由已初始化');
   return router;
 }
 

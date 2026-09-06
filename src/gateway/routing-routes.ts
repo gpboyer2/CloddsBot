@@ -85,6 +85,6 @@ export function createRoutingRouter(deps: RoutingRouterDeps): Router {
     }
   });
 
-  logger.info('Smart Router API routes initialized');
+  logger.info('智能路由接口路由已初始化');
   return expressRouter;
 }

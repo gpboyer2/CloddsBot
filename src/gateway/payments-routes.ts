@@ -81,6 +81,6 @@ export function createPaymentsRouter(deps: PaymentsRouterDeps): Router {
     }
   });
 
-  logger.info('Payments API routes initialized');
+  logger.info('支付接口路由已初始化');
   return router;
 }

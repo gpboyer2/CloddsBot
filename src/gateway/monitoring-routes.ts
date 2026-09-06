@@ -72,6 +72,6 @@ export function createMonitoringRouter(deps: MonitoringRouterDeps): Router {
     }
   });
 
-  logger.info('Monitoring API routes initialized');
+  logger.info('监控接口路由已初始化');
   return router;
 }

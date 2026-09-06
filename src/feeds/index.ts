@@ -111,7 +111,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Polymarket
   if (config.polymarket?.enabled) {
-    logger.info('Initializing Polymarket feed');
+    logger.info('初始化 Polymarket 行情源');
     const polymarket = await createPolymarketFeed();
     trackFeed('polymarket', polymarket as unknown as FeedAdapter);
 
@@ -140,7 +140,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Kalshi
   if (config.kalshi?.enabled) {
-    logger.info('Initializing Kalshi feed');
+    logger.info('初始化 Kalshi 行情源');
     const kalshi = await createKalshiFeed({
       apiKeyId: config.kalshi.apiKeyId,
       privateKeyPem: config.kalshi.privateKeyPem,
@@ -157,7 +157,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Manifold
   if (config.manifold?.enabled) {
-    logger.info('Initializing Manifold feed');
+    logger.info('初始化 Manifold 行情源');
     const manifold = await createManifoldFeed();
     trackFeed('manifold', manifold as unknown as FeedAdapter);
 
@@ -168,20 +168,20 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Metaculus
   if (config.metaculus?.enabled) {
-    logger.info('Initializing Metaculus feed');
+    logger.info('初始化 Metaculus 行情源');
     const metaculus = await createMetaculusFeed();
     trackFeed('metaculus', metaculus as unknown as FeedAdapter);
   }
 
   // Initialize PredictIt (read-only)
   // Always enable PredictIt since it's free and read-only
-  logger.info('Initializing PredictIt feed (read-only)');
+  logger.info('初始化 PredictIt 行情源（只读）');
   const predictit = await createPredictItFeed();
   trackFeed('predictit', predictit as unknown as FeedAdapter);
 
   // Initialize Drift BET (Solana)
   if (config.drift?.enabled) {
-    logger.info('Initializing Drift BET feed');
+    logger.info('初始化 Drift BET 行情源');
     const drift = await createDriftFeed({
       betApiUrl: config.drift.betApiUrl,
       requestTimeoutMs: config.drift.requestTimeoutMs,
@@ -195,7 +195,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Betfair (sports betting exchange)
   if ((config as any).betfair?.enabled) {
-    logger.info('Initializing Betfair feed');
+    logger.info('初始化 Betfair 行情源');
     const betfairConfig = (config as any).betfair;
     const betfair = await createBetfairFeed({
       appKey: betfairConfig.appKey,
@@ -212,7 +212,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Smarkets (betting exchange with lower fees)
   if ((config as any).smarkets?.enabled) {
-    logger.info('Initializing Smarkets feed');
+    logger.info('初始化 Smarkets 行情源');
     const smarketsConfig = (config as any).smarkets;
     const smarkets = await createSmarketsFeed({
       apiToken: smarketsConfig.apiToken,
@@ -227,7 +227,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Opinion.trade (BNB Chain prediction market)
   if ((config as any).opinion?.enabled) {
-    logger.info('Initializing Opinion.trade feed');
+    logger.info('初始化 Opinion.trade 行情源');
     const opinionConfig = (config as any).opinion;
     const opinion = await createOpinionFeed({
       apiKey: opinionConfig.apiKey,
@@ -245,7 +245,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Virtuals Protocol (Base chain AI agents)
   if ((config as any).virtuals?.enabled) {
-    logger.info('Initializing Virtuals Protocol feed');
+    logger.info('初始化 Virtuals Protocol 行情源');
     const virtualsConfig = (config as any).virtuals;
     const virtuals = await createVirtualsFeed({
       privateKey: virtualsConfig.privateKey,
@@ -262,7 +262,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Predict.fun (BNB Chain prediction market)
   if ((config as any).predictfun?.enabled) {
-    logger.info('Initializing Predict.fun feed');
+    logger.info('初始化 Predict.fun 行情源');
     const predictfunConfig = (config as any).predictfun;
     const predictfun = await createPredictFunFeed({
       apiKey: predictfunConfig.apiKey,
@@ -276,7 +276,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize Hedgehog Markets (Solana prediction market)
   if ((config as any).hedgehog?.enabled) {
-    logger.info('Initializing Hedgehog Markets feed');
+    logger.info('初始化 Hedgehog Markets 行情源');
     const hedgehogConfig = (config as any).hedgehog;
     const hedgehog = await createHedgehogFeed({
       apiKey: hedgehogConfig.apiKey,
@@ -298,14 +298,14 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   // Initialize AgentBets (AI-native prediction market on Solana — Colosseum Agent Hackathon)
   if ((config as any).agentbets?.enabled) {
-    logger.info('Initializing AgentBets feed');
+    logger.info('初始化 AgentBets 行情源');
     const agentbetsFeed = await createAgentBetsFeed();
     trackFeed('agentbets', agentbetsFeed as unknown as FeedAdapter);
   }
 
   // Initialize News feed
   if (config.news?.enabled) {
-    logger.info('Initializing News feed');
+    logger.info('初始化新闻行情源');
     newsFeed = await createNewsFeed({
       twitter: config.news.twitter,
     });
@@ -320,7 +320,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
     const startPromises: Promise<void>[] = [];
 
     for (const [name, feed] of feeds) {
-      logger.info(`Starting ${name} feed`);
+      logger.info(`启动 ${name} 行情源`);
       const p = (feed.start ? feed.start() : feed.connect ? feed.connect() : Promise.resolve())
         .catch((error: unknown) => {
           logger.error({ error, feed: name }, `Failed to start ${name} feed — skipping`);
@@ -344,13 +344,13 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
     }
 
     await Promise.all(startPromises);
-    logger.info('All feeds started');
+    logger.info('全部行情源已启动');
   };
 
   // Stop method
   emitter.stop = async () => {
     for (const [name, feed] of feeds) {
-      logger.info(`Stopping ${name} feed`);
+      logger.info(`停止 ${name} 行情源`);
       if (feed.stop) {
         feed.stop();
       } else if (feed.disconnect) {
@@ -571,7 +571,7 @@ export async function createFeedManager(config: Config['feeds']): Promise<FeedMa
 
   emitter.clearCache = () => {
     marketCache.clear();
-    logger.info('Market cache cleared');
+    logger.info('行情缓存已清空');
   };
 
   return emitter;

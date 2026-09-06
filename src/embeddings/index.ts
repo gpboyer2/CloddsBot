@@ -74,7 +74,7 @@ export async function getTransformersPipeline(): Promise<Pipeline> {
     } catch (error) {
       pipelinePromise = null;
       pipelineLoadFailed = true; // Don't retry — use simple fallback permanently
-      logger.error({ error }, 'Failed to load transformers.js model — using simple embeddings');
+      logger.error({ error }, '本地向量模型加载失败，改用简单向量（语义搜索精度会降低）');
       throw error;
     }
   })();

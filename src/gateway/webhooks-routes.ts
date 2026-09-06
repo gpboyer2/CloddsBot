@@ -114,6 +114,6 @@ export function createWebhooksRouter(deps: WebhooksRouterDeps): Router {
     }
   });
 
-  logger.info('Webhooks API routes initialized');
+  logger.info('Webhook 接口路由已初始化');
   return router;
 }

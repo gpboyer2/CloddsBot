@@ -13,7 +13,7 @@ let db: Database | null = null;
 export function initDCAPersistence(database: Database): void {
   db = database;
   ensureTable();
-  logger.info('DCA persistence initialized');
+  logger.info('DCA 定投持久化已初始化');
 }
 
 function getDb(): Database {

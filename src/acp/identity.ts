@@ -87,7 +87,7 @@ let db: Database | null = null;
 export function initIdentityPersistence(database: Database): void {
   db = database;
   ensureTablesExist();
-  logger.info('ACP Identity persistence initialized');
+  logger.info('ACP 身份持久化已初始化');
 }
 
 function getDb(): Database {

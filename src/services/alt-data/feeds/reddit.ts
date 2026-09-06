@@ -142,7 +142,7 @@ export function createRedditFeed(
     if (timer) return;
     poll().catch((err) => { logger.error({ error: err }, '[reddit] Feed poll failed'); });
     timer = setInterval(() => { poll().catch((err) => { logger.error({ error: err }, '[reddit] Feed poll failed'); }); }, intervalMs);
-    logger.info({ intervalMs, subreddits }, '[reddit] Feed started');
+    logger.info({ intervalMs, subreddits }, '[Reddit 舆情] 数据源已启动');
   }
 
   function stop(): void {

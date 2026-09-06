@@ -140,7 +140,7 @@ export async function createMetaculusFeed(): Promise<MetaculusFeed> {
   }
 
   emitter.connect = async () => {
-    logger.info('Metaculus feed connected (polling mode)');
+    logger.info('Metaculus 行情源已连接（轮询模式）');
     // Metaculus doesn't have WebSocket, so we just poll periodically for updates
     // For now, just mark as connected
   };

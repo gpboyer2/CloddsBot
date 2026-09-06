@@ -301,7 +301,7 @@ export function createMonitoringService(options: {
       attachProcessHandlers();
       startSystemTimer();
 
-      logger.info('Monitoring service started');
+      logger.info('监控服务已启动');
     },
 
     stop() {

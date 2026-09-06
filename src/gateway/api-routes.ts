@@ -898,6 +898,6 @@ export function createTradingApiRouter(deps: TradingApiDeps): Router {
     }
   });
 
-  logger.info('Trading API routes initialized');
+  logger.info('交易接口路由已初始化');
   return router;
 }

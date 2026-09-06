@@ -586,7 +586,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
       const launchKeypair = loadSolanaKeypair();
       httpGateway.setLaunchRouter(createLaunchRouter(launchConnection, launchKeypair));
     } catch (err) {
-      logger.warn({ err }, 'Launch API: Solana wallet not configured — launch endpoints disabled');
+      logger.warn({ err }, '代币发射 API：未配置 Solana 钱包，相关接口已停用');
     }
   }
 
@@ -798,7 +798,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
   if (opportunityFinder) {
     const { createOpportunityRouter } = await import('./opportunity-routes.js');
     httpGateway.setOpportunityRouter(createOpportunityRouter({ finder: opportunityFinder, feeds }));
-    logger.info('Opportunity Finder API wired');
+    logger.info('套利机会接口已接入');
   }
 
   // Wire Whale Tracker router
@@ -831,35 +831,35 @@ export async function createGateway(config: Config): Promise<AppGateway> {
   if (smartRouter) {
     const { createRoutingRouter } = await import('./routing-routes.js');
     httpGateway.setRoutingRouter(createRoutingRouter({ router: smartRouter }));
-    logger.info('Smart Router API wired');
+    logger.info('智能路由接口已接入');
   }
 
   // Wire Feeds Manager API (always available)
   {
     const { createFeedsRouter } = await import('./feeds-routes.js');
     httpGateway.setFeedsRouter(createFeedsRouter({ feeds: feeds as any }));
-    logger.info('Feeds Manager API wired');
+    logger.info('行情源管理接口已接入');
   }
 
   // Wire Monitoring API (providerHealth may be null)
   {
     const { createMonitoringRouter } = await import('./monitoring-routes.js');
     httpGateway.setMonitoringRouter(createMonitoringRouter({ providerHealth }));
-    logger.info('Monitoring API wired');
+    logger.info('监控接口已接入');
   }
 
   // Wire Alt Data API (lazy — altDataService created later in start())
   {
     const { createAltDataRouter } = await import('./alt-data-routes.js');
     httpGateway.setAltDataRouter(createAltDataRouter({ getService: () => altDataService }));
-    logger.info('Alt Data API wired');
+    logger.info('另类数据接口已接入');
   }
 
   // Wire Alerts API (lazy — alertService may not be instantiated)
   {
     const { createAlertsRouter } = await import('./alerts-routes.js');
     httpGateway.setAlertsRouter(createAlertsRouter({ getService: () => null }));
-    logger.info('Alerts API wired (service injected when available)');
+    logger.info('预警接口已接入（服务在可用时注入）');
   }
 
   // Wire Execution Queue API (requires Redis / executionProducer)
@@ -873,28 +873,28 @@ export async function createGateway(config: Config): Promise<AppGateway> {
   {
     const { createWebhooksRouter } = await import('./webhooks-routes.js');
     httpGateway.setWebhooksRouter(createWebhooksRouter({ manager: webhookManager as any }));
-    logger.info('Webhooks API wired');
+    logger.info('Webhook 接口已接入');
   }
 
   // Wire Payments/x402 API (lazy — x402Client created later)
   {
     const { createPaymentsRouter } = await import('./payments-routes.js');
     httpGateway.setPaymentsRouter(createPaymentsRouter({ getClient: () => x402Client }));
-    logger.info('Payments API wired');
+    logger.info('支付接口已接入');
   }
 
   // Wire Embeddings API (always available)
   {
     const { createEmbeddingsRouter } = await import('./embeddings-routes.js');
     httpGateway.setEmbeddingsRouter(createEmbeddingsRouter({ embeddings }));
-    logger.info('Embeddings API wired');
+    logger.info('向量嵌入接口已接入');
   }
 
   // Wire Cron Service API (lazy — cronService created in startCronService())
   {
     const { createCronRouter } = await import('./cron-routes.js');
     httpGateway.setCronRouter(createCronRouter({ getService: () => cronService }));
-    logger.info('Cron Service API wired');
+    logger.info('定时任务服务接口已接入');
   }
 
   // Realtime alerts service (created after sendMessage is defined)
@@ -1145,7 +1145,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
   // Connect feeds → signal bus (single subscription point)
   signalBus.connectFeeds(feeds);
 
-  logger.info('Signal bus wired: feeds → tick/orderbook/signal consumers');
+  logger.info('信号总线已接线：行情源 → tick/订单簿/信号消费者');
 
   // Create position bridge (wires signal bus ticks → PM price updates,
   // signal router fills → PM position tracking, PM close events → cleanup)
@@ -1375,7 +1375,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
         runCleanup();
       }, intervalMs);
       if (marketCacheCleanupInterval.unref) marketCacheCleanupInterval.unref();
-      logger.info({ ttlMs, intervalMs }, 'Market cache cleanup started');
+      logger.info({ ttlMs, intervalMs }, '行情缓存清理任务已启动');
     }
   }
 
@@ -1409,9 +1409,9 @@ export async function createGateway(config: Config): Promise<AppGateway> {
           prune: true,
           staleAfterMs,
         });
-        logger.info({ result }, 'Market index sync completed');
+        logger.info({ result }, '市场索引同步完成');
       } catch (error) {
-        logger.warn({ error }, 'Market index sync failed');
+        logger.warn({ error }, '市场索引同步失败');
       }
     };
 
@@ -1433,7 +1433,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
           minPredictions,
           staleAfterMs,
         },
-        'Market index sync scheduled'
+        '市场索引同步已排程'
       );
     }
   }
@@ -1536,7 +1536,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
     skillWatcher.on('unlink', () => scheduleSkillReload('unlink'));
 
     watchers.push(skillWatcher);
-    logger.info({ paths }, 'Skill hot-reload watcher started');
+    logger.info({ paths }, 'Skill 热重载监听已启动');
   }
 
   async function rebuildRuntime(reason: string, workspaceChanged: boolean): Promise<void> {
@@ -1756,7 +1756,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
     watcher.on('unlink', scheduleConfigReload);
 
     watchers.push(watcher);
-    logger.info({ configPath }, 'Config hot-reload watcher started');
+    logger.info({ configPath }, '配置热重载监听已启动');
   }
 
   function getChannelRateLimitConfig(platform: string): RateLimitConfig | null {
@@ -2462,7 +2462,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
     }
   }
 
-  logger.info({ strategies: botManager.getStrategies().length }, 'Bot manager initialized with built-in strategies');
+  logger.info({ strategies: botManager.getStrategies().length }, '机器人管理器已初始化（含内置策略）');
 
   // Wire trading API endpoints (positions, portfolio, orders, signals, orchestrator)
   const backtestEngine: BacktestEngine = createBacktestEngine(db);
@@ -2486,7 +2486,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
 
   return {
     async start(): Promise<void> {
-      logger.info('Starting gateway services');
+      logger.info('正在启动网关服务');
 
       // Setup graceful shutdown handlers
       setupShutdownHandlers();
@@ -2629,7 +2629,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
           embeddings: embeddings as unknown as EmbeddingsLike,
         });
         await altDataService.start();
-        logger.info({ feeds: altDataService.getStats().activeFeeds }, 'Alt-data service started');
+        logger.info({ feeds: altDataService.getStats().activeFeeds }, '另类数据服务已启动');
       }
 
       started = true;
@@ -2657,13 +2657,13 @@ export async function createGateway(config: Config): Promise<AppGateway> {
               logger.warn({ error }, 'Position price update failed');
             });
           }, intervalMs);
-          logger.info({ intervalMs }, 'Position price updater started');
+          logger.info({ intervalMs }, '持仓价格更新器已启动');
         }
       }
       setupSkillWatcher();
       setupConfigWatcher();
 
-      logger.info({ port: currentConfig.gateway.port }, 'Gateway started');
+      logger.info({ port: currentConfig.gateway.port }, '网关已启动');
     },
 
     async stop(): Promise<void> {

@@ -1352,7 +1352,7 @@ function resolveAlertRecipient(userId: string): { platform: string; chatId: stri
     if (running) return;
     running = true;
 
-    logger.info('Starting cron service');
+    logger.info('正在启动定时任务服务');
 
     const cronConfig = deps.config?.cron ?? {};
     if (cronConfig.enabled === false) {
@@ -1436,7 +1436,7 @@ function resolveAlertRecipient(userId: string): { platform: string; chatId: stri
       }
     }, 60000);
 
-    logger.info('Cron service started');
+    logger.info('定时任务服务已启动');
   };
 
   emitter.stop = () => {

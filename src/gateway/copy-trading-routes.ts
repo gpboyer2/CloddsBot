@@ -158,6 +158,6 @@ export function createCopyTradingRouter(deps: CopyTradingRouterDeps): Router {
     }
   });
 
-  logger.info('Copy Trading API routes initialized');
+  logger.info('Copy 交易接口路由已初始化');
   return router;
 }

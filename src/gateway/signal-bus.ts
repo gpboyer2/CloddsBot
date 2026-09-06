@@ -72,7 +72,7 @@ export function createSignalBus(): SignalBus {
     feeds.on('price', priceHandler);
     feeds.on('orderbook', orderbookHandler);
 
-    logger.info('Signal bus connected to feeds');
+    logger.info('信号总线已连接行情源');
   };
 
   bus.disconnectFeeds = () => {

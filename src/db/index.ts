@@ -982,7 +982,7 @@ export async function initDatabase(): Promise<Database> {
       mkdirSync(DB_DIR, { recursive: true });
     }
 
-    logger.info(`Opening database: ${DB_FILE}`);
+    logger.info(`正在打开数据库：${DB_FILE}`);
 
     // Initialize sql.js
     const SQL = await initSqlJs();

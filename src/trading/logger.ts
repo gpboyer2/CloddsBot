@@ -234,7 +234,7 @@ export function createTradeLogger(db: Database): TradeLogger {
       const trade = rowToTrade(row);
       trades.set(trade.id, trade);
     }
-    logger.info({ count: trades.size }, 'Loaded recent trades');
+    logger.info({ count: trades.size }, '已加载近期交易记录');
   } catch {
     logger.debug('No existing trades');
   }

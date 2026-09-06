@@ -83,6 +83,6 @@ export function createShieldRouter(): Router {
     }
   });
 
-  logger.info('Shield API routes initialized');
+  logger.info('安全盾（Shield）接口路由已初始化');
   return router;
 }

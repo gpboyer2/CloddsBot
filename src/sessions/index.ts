@@ -264,7 +264,7 @@ export function createSessionManager(db: Database, configInput?: Config['session
     },
   };
 
-  logger.info({ config }, 'Session manager initialized');
+  logger.info({ config }, '会话管理器已初始化');
 
   // Track last reset date for daily reset
   let lastDailyResetDate: string | null = null;

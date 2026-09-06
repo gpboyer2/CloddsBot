@@ -827,5 +827,5 @@ export function initACP(database: Database): void {
   initACPPersistence(database);
   initIdentityPersistence(database);
   initPredictions(database);
-  logger.info('ACP module initialized with database persistence');
+  logger.info('ACP 模块已初始化（带数据库持久化）');
 }

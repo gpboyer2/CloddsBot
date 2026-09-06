@@ -271,7 +271,7 @@ export function createAltDataService(opts: AltDataServiceOptions): AltDataServic
     }
 
     const activeFeeds = getActiveFeeds();
-    logger.info({ feeds: activeFeeds, eventsProcessed, signalsEmitted }, '[alt-data] Service started');
+    logger.info({ feeds: activeFeeds, eventsProcessed, signalsEmitted }, '[另类数据] 服务已启动');
   }
 
   function stop(): void {

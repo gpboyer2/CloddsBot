@@ -1220,7 +1220,7 @@ export function createOpportunityFinder(
     riskModeler,
   } as Partial<OpportunityFinder>);
 
-  logger.info({ platforms: cfg.platforms.length, minEdge: cfg.minEdge }, 'Opportunity finder initialized');
+  logger.info({ platforms: cfg.platforms.length, minEdge: cfg.minEdge }, '套利机会扫描器已初始化');
 
   return emitter;
 }

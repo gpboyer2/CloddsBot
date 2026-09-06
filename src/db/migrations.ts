@@ -1487,7 +1487,7 @@ export function createMigrationRunner(db: Database): MigrationRunner {
       const pending = getPendingMigrations();
 
       if (pending.length === 0) {
-        logger.info('Database is up to date');
+        logger.info('数据库结构已是最新，无需迁移');
         return;
       }
 

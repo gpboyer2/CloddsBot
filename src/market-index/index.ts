@@ -647,7 +647,7 @@ export function createMarketIndexService(
             prunedTotal += pruned;
           }
         } catch (error) {
-          logger.warn({ platform, error }, 'Market index sync failed');
+          logger.warn({ platform, error }, '市场索引同步失败');
           byPlatform[platform] = 0;
         }
       }

@@ -106,6 +106,6 @@ export function createEmbeddingsRouter(deps: EmbeddingsRouterDeps): Router {
     }
   });
 
-  logger.info('Embeddings API routes initialized');
+  logger.info('向量嵌入接口路由已初始化');
   return router;
 }

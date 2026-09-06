@@ -32,7 +32,7 @@ let db: Database | null = null;
 export function initACPPersistence(database: Database): void {
   db = database;
   ensureTablesExist();
-  logger.info('ACP persistence initialized');
+  logger.info('ACP 持久化已初始化');
 }
 
 function getDb(): Database {

@@ -230,6 +230,6 @@ export function createDCARouter(deps?: DCARouterDeps): Router {
     }
   });
 
-  logger.info('DCA API routes initialized');
+  logger.info('DCA 定投接口路由已初始化');
   return router;
 }

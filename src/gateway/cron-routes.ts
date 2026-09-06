@@ -131,6 +131,6 @@ export function createCronRouter(deps: CronRouterDeps): Router {
     }
   });
 
-  logger.info('Cron API routes initialized');
+  logger.info('定时任务接口路由已初始化');
   return router;
 }

@@ -200,7 +200,7 @@ export async function createKalshiFeed(config?: {
     if (config?.email || config?.password) {
       logger.warn('Kalshi: Legacy email/password auth is no longer supported in feed. Use API key auth.');
     } else {
-      logger.warn('Kalshi: No API key credentials provided, using unauthenticated access');
+      logger.warn('Kalshi：未配置 API 凭证，将以游客（未认证）模式访问');
     }
   }
 
@@ -940,7 +940,7 @@ export async function createKalshiFeed(config?: {
         logger.info('Kalshi: Connected (websocket + polling fallback)');
       } else {
         pollInterval = setInterval(pollPrices, 5000);
-        logger.info('Kalshi: Connected (polling mode)');
+        logger.info('Kalshi：已连接（轮询模式）');
       }
       emitter.emit('connected');
     },

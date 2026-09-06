@@ -120,7 +120,7 @@ export async function createChannelManager(
 
   // Initialize WebChat if enabled (starts when WebSocket attached)
   if (config.webchat?.enabled) {
-    logger.info('Initializing WebChat channel');
+    logger.info('初始化 WebChat 通道');
     webchat = createWebChatChannel(config.webchat, callbacks);
   }
 
@@ -384,7 +384,7 @@ export async function createChannelManager(
     attachWebSocket(wss: WebSocketServer) {
       if (webchat) {
         webchat.start(wss);
-        logger.info('WebChat attached to WebSocket server');
+        logger.info('WebChat 已挂载到 WebSocket 服务');
         flushQueueFor('webchat').catch((error) => {
           logger.warn({ error }, 'Failed to flush WebChat queue');
         });

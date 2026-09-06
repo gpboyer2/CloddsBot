@@ -14,7 +14,7 @@ let db: Database | null = null;
 export function initOrderPersistence(database: Database): void {
   db = database;
   ensureTables();
-  logger.info('Order persistence initialized');
+  logger.info('订单持久化已初始化');
 }
 
 function getDb(): Database {

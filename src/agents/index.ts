@@ -17196,7 +17196,7 @@ export async function createAgentManager(
     totalTools: allToolDefs.length,
     coreTools: coreTools.length,
     toolSearchEnabled: TOOL_SEARCH_ENABLED,
-  }, 'Tool registry initialized');
+  }, '工具注册表已初始化');
 
   const getConfig = configProvider || (() => config);
   const getWebhooks = webhookToolProvider || (() => undefined);
@@ -17374,7 +17374,7 @@ export async function createAgentManager(
         strategy: getModelStrategy(),
       });
       const modelId = session.context.modelOverride || adaptiveModel;
-      logger.info({ modelId, strategy: getModelStrategy() }, 'Selected model');
+      logger.info({ modelId, strategy: getModelStrategy() }, '已选择模型');
 
       let streamedResponseSent = false;
       let streamedMessageId: string | null = null;
@@ -17862,7 +17862,7 @@ export async function createAgentManager(
       const minimalTools = isZeroIntent && TOOL_SEARCH_ENABLED;
 
       if (minimalTools) {
-        logger.info('Zero-intent message — using minimal tools (tool_search only)');
+        logger.info('闲聊消息——只挂最小工具集（仅 tool_search）');
       }
 
       let response: Anthropic.Message;
@@ -17912,7 +17912,7 @@ export async function createAgentManager(
             cacheRead,
             cacheHitRate: `${cacheHitRate.toFixed(1)}%`,
           },
-          'API token usage (with cache stats)'
+          'AI 用量（含缓存统计）'
         );
       }
 
@@ -18300,7 +18300,7 @@ export async function createAgentManager(
           model: nextConfig.agents.defaults.model.primary,
           workspace: nextConfig.agents.defaults.workspace,
         },
-        'Agent manager received config reload signal'
+        '智能体管理器收到配置热更新信号'
       );
       ensureRateLimiter();
     },

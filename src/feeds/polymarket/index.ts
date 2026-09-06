@@ -99,7 +99,7 @@ export async function createPolymarketFeed(): Promise<PolymarketFeed> {
   function connect() {
     if (ws) return;
 
-    logger.info('Connecting to Polymarket WebSocket');
+    logger.info('正在连接 Polymarket WebSocket');
     const socket = new WebSocket(WS_URL);
     ws = socket;
 

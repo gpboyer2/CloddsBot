@@ -302,6 +302,6 @@ export function createOpportunityRouter(deps: OpportunityRouterDeps): Router {
     }
   });
 
-  logger.info('Opportunity Finder API routes initialized');
+  logger.info('套利机会接口路由已初始化');
   return router;
 }

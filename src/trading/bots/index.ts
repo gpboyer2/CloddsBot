@@ -381,7 +381,7 @@ export function createBotManager(db: Database, config: BotManagerConfig = {}): B
         [strategy.config.id, 'stopped', JSON.stringify(strategy.config)]
       );
 
-      logger.info({ strategyId: strategy.config.id, name: strategy.config.name }, 'Strategy registered');
+      logger.info({ strategyId: strategy.config.id, name: strategy.config.name }, '策略已注册');
       emitter.emit('strategyRegistered', strategy.config);
     },
 

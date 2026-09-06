@@ -323,7 +323,7 @@ export function createPairingService(db: Database, configInput?: PairingConfig):
         });
       }
 
-      logger.info({ pending: pendingRequests.size, paired: pairedUsers.size }, 'Loaded pairing data');
+      logger.info({ pending: pendingRequests.size, paired: pairedUsers.size }, '配对数据加载完成');
     } catch (err) {
       // Tables might not exist yet
       logger.debug('Pairing tables not initialized yet');
