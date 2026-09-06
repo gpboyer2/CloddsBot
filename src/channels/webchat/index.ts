@@ -398,8 +398,10 @@ export function createWebChatChannel(
 
       if (session?.ws.readyState === WebSocket.OPEN) {
         try {
+          // kind 区分正文与思考过程：thinking 由前端渲染成可折叠气泡，不进会话历史
           session.ws.send(JSON.stringify({
             type: 'message',
+            kind: msg.kind ?? 'text',
             messageId,
             text: msg.text,
             parseMode: msg.parseMode,
@@ -424,6 +426,7 @@ export function createWebChatChannel(
         try {
           session.ws.send(JSON.stringify({
             type: 'edit',
+            kind: msg.kind ?? 'text',
             messageId: msg.messageId,
             text: msg.text,
             parseMode: msg.parseMode,

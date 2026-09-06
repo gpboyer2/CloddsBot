@@ -17402,6 +17402,13 @@ export async function createAgentManager(
         Boolean(editMessage) &&
         STREAM_RESPONSE_PLATFORMS.has(processedMessage.platform);
 
+      // 思考过程只往 webchat 推：网页端有专门的可折叠气泡展示，其他渠道（Telegram 等）
+      // 推思考会刷屏。中转站若不吐 thinking 块则该事件不触发，无副作用。
+      const canStreamThinking = canStreamResponse && processedMessage.platform === 'webchat';
+
+      // 思考过程太长时只保留尾部，防止 edit 消息越滚越大拖垮前端渲染
+      const THINKING_TAIL_CHARS = 8000;
+
       const extractResponseText = (response: Anthropic.Message): string => {
         const textBlocks = response.content.filter((b): b is Anthropic.TextBlock => b.type === 'text');
         return textBlocks.map((b) => b.text).join('\n');
@@ -17415,6 +17422,13 @@ export async function createAgentManager(
         let lastSentText = '';
         let lastUpdateAt = 0;
         let updateTimer: NodeJS.Timeout | null = null;
+
+        // —— 思考过程流式状态（独立于正文，单独一条消息承载）——
+        let pendingThinking = '';
+        let lastSentThinking = '';
+        let thinkingMessageId: string | null = null;
+        let thinkingUpdateAt = 0;
+        let thinkingTimer: NodeJS.Timeout | null = null;
 
         const scheduleFlush = (): void => {
           if (updateTimer) return;
@@ -17464,6 +17478,56 @@ export async function createAgentManager(
           }
         };
 
+        // 思考过程的推送节奏与正文一致（同一节流间隔），首条 thinking 消息单独建，
+        // 后续走 edit 原地更新，前端渲染成可折叠的「思考过程」气泡。
+        const scheduleThinkingFlush = (): void => {
+          if (thinkingTimer) return;
+          const delay = Math.max(0, STREAM_RESPONSE_INTERVAL_MS - (Date.now() - thinkingUpdateAt));
+          thinkingTimer = setTimeout(() => {
+            thinkingTimer = null;
+            void flushThinking(true);
+          }, delay);
+        };
+
+        const flushThinking = async (force = false): Promise<void> => {
+          if (!pendingThinking || pendingThinking === lastSentThinking) return;
+          const now = Date.now();
+          if (!force && now - thinkingUpdateAt < STREAM_RESPONSE_INTERVAL_MS) {
+            scheduleThinkingFlush();
+            return;
+          }
+          const tail = pendingThinking.length > THINKING_TAIL_CHARS
+            ? '……（前面已省略）\n' + pendingThinking.slice(-THINKING_TAIL_CHARS)
+            : pendingThinking;
+          try {
+            if (!thinkingMessageId) {
+              const sentId = await sendMessage({
+                platform: processedMessage.platform,
+                chatId: processedMessage.chatId,
+                text: tail,
+                kind: 'thinking',
+                thread: processedMessage.thread,
+              });
+              if (sentId) thinkingMessageId = sentId;
+            } else if (editMessage) {
+              await editMessage({
+                platform: processedMessage.platform,
+                chatId: processedMessage.chatId,
+                messageId: thinkingMessageId,
+                text: tail,
+                kind: 'thinking',
+                thread: processedMessage.thread,
+              });
+            }
+            if (thinkingMessageId) {
+              lastSentThinking = tail;
+              thinkingUpdateAt = Date.now();
+            }
+          } catch (error) {
+            logger.debug({ error }, 'Thinking stream update failed');
+          }
+        };
+
         const message = await withRetry(
           async () => {
             streamHasOutput = false;
@@ -17481,6 +17545,14 @@ export async function createAgentManager(
               pendingText = fullText;
               scheduleFlush();
             });
+            // 思考块增量：模型/中转站开启思考时才会触发。
+            // 注意不能在思考回调里 await，SDK 事件是同步派发的，只做状态记录 + 节流推送。
+            if (canStreamThinking) {
+              stream.on('thinking', (_delta, fullThinking) => {
+                pendingThinking = fullThinking;
+                scheduleThinkingFlush();
+              });
+            }
 
             const finalMessage = await stream.finalMessage();
             if (updateTimer) {
@@ -17488,6 +17560,13 @@ export async function createAgentManager(
               updateTimer = null;
             }
             await flushUpdate(true);
+            if (canStreamThinking) {
+              if (thinkingTimer) {
+                clearTimeout(thinkingTimer);
+                thinkingTimer = null;
+              }
+              await flushThinking(true);
+            }
             return finalMessage;
           },
           {

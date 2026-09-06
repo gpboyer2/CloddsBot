@@ -694,6 +694,12 @@ export interface OutgoingMessage {
   accountId?: string;
   parseMode?: 'HTML' | 'Markdown' | 'MarkdownV2';
   buttons?: MessageButton[][];
+  /**
+   * 消息种类：'text' = 正式回复（默认）；'thinking' = 模型的思考过程增量。
+   * 思考消息只面向支持展示的渠道（webchat），其他渠道不要发送，避免刷屏。
+   * 字段语义一旦定下不要改：前端按 kind 渲染不同气泡。
+   */
+  kind?: 'text' | 'thinking';
   /** Thread/reply context */
   thread?: ThreadContext;
   /** Attachments to send */
