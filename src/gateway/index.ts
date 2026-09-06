@@ -2003,6 +2003,11 @@ export async function createGateway(config: Config): Promise<AppGateway> {
   // Performance dashboard handler
   httpGateway.setPerformanceDashboardHandler(async (_req) => {
     // Get trade statistics from database
+    // 注意：列名必须与 src/trading/logger.ts 建的 trades 表一致——
+    // 该表没有 pnl/pnl_pct/entry_price/exit_price/strategy 列，真实列是
+    // price / realized_pnl / realized_pnl_pct / strategy_name / strategy_id，
+    // 已平仓交易的盈亏记在平仓（exit）行的 realized_pnl 上，入场行通过 exit_trade_id 关联。
+    // 不能改回 pnl/pnl_pct 等不存在的列，否则 SQL 直接报错、看板 500。
     const trades = db.query<{
       id: string;
       timestamp: string;
@@ -2017,24 +2022,25 @@ export async function createGateway(config: Config): Promise<AppGateway> {
       strategy: string | null;
     }>(`
       SELECT
-        id,
-        created_at as timestamp,
-        COALESCE(market_question, market_id) as market,
-        side,
-        size,
-        entry_price as entryPrice,
-        exit_price as exitPrice,
-        pnl,
-        pnl_pct as pnlPct,
-        status,
-        strategy
-      FROM trades
-      ORDER BY created_at DESC
+        t.id,
+        t.created_at as timestamp,
+        COALESCE(t.market_question, t.market_id) as market,
+        t.side,
+        t.size,
+        t.price as entryPrice,
+        x.price as exitPrice,
+        COALESCE(x.realized_pnl, t.realized_pnl) as pnl,
+        COALESCE(x.realized_pnl_pct, t.realized_pnl_pct) as pnlPct,
+        t.status,
+        COALESCE(t.strategy_name, t.strategy_id) as strategy
+      FROM trades t
+      LEFT JOIN trades x ON x.id = t.exit_trade_id
+      ORDER BY t.created_at DESC
       LIMIT 100
     `);
 
-    // Calculate stats
-    const closedTrades = trades.filter(t => t.status === 'closed' && t.pnl != null);
+    // Calculate stats（pnl 非空即代表该笔交易已平仓、有已实现盈亏）
+    const closedTrades = trades.filter(t => t.pnl != null);
     const winningTrades = closedTrades.filter(t => (t.pnl ?? 0) > 0);
 
     const totalPnl = closedTrades.reduce((sum, t) => sum + (t.pnl ?? 0), 0);
@@ -2077,7 +2083,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
     // Group by strategy
     const strategyMap: Record<string, { trades: number; wins: number; pnl: number }> = {};
     for (const t of closedTrades) {
-      const strat = t.strategy ?? 'Unknown';
+      const strat = t.strategy ?? '未知';
       if (!strategyMap[strat]) {
         strategyMap[strat] = { trades: 0, wins: 0, pnl: 0 };
       }
@@ -2093,7 +2099,7 @@ export async function createGateway(config: Config): Promise<AppGateway> {
       pnl: data.pnl,
     }));
 
-    // Format recent trades
+    // Format recent trades（状态映射给前端徽章用：有已实现盈亏 → 盈/亏，否则视为持仓中）
     const recentTrades = trades.slice(0, 20).map(t => ({
       id: t.id,
       timestamp: t.timestamp,
@@ -2104,9 +2110,9 @@ export async function createGateway(config: Config): Promise<AppGateway> {
       exitPrice: t.exitPrice ?? undefined,
       pnl: t.pnl ?? undefined,
       pnlPct: t.pnlPct ?? undefined,
-      status: t.status === 'closed'
+      status: t.pnl != null
         ? ((t.pnl ?? 0) > 0 ? 'win' : 'loss')
-        : t.status,
+        : 'open',
     }));
 
     return {

@@ -1969,7 +1969,7 @@ export function createServer(
   // Performance dashboard API endpoint
   app.get('/api/performance', async (req, res) => {
     if (!performanceDashboardHandler) {
-      res.status(404).json({ error: 'Performance dashboard not configured' });
+      res.status(404).json({ error: '绩效看板未配置' });
       return;
     }
 
@@ -1982,7 +1982,7 @@ export function createServer(
       res.json(result);
     } catch (error) {
       logger.error({ error }, 'Performance dashboard handler failed');
-      res.status(500).json({ error: 'Performance dashboard error' });
+      res.status(500).json({ error: '绩效数据查询出错' });
     }
   });
 
@@ -2212,41 +2212,41 @@ export function createServer(
 <body>
   <div class="header">
     <h1>Clodds</h1>
-    <p>Prediction Markets AI</p>
+    <p>预测市场 AI 终端</p>
   </div>
 
   <div class="tabs">
-    <div class="tab active" data-tab="portfolio">Portfolio</div>
-    <div class="tab" data-tab="markets">Markets</div>
-    <div class="tab" data-tab="arb">Arbitrage</div>
+    <div class="tab active" data-tab="portfolio">持仓</div>
+    <div class="tab" data-tab="markets">市场</div>
+    <div class="tab" data-tab="arb">套利</div>
   </div>
 
   <div id="portfolio" class="section active">
     <div class="card">
-      <div class="card-title">Total Value</div>
+      <div class="card-title">总资产</div>
       <div class="card-value" id="total-value">$0.00</div>
     </div>
     <div class="card">
-      <div class="card-title">P&L</div>
+      <div class="card-title">盈亏</div>
       <div class="card-value" id="pnl">$0.00</div>
     </div>
     <div class="card">
-      <div class="card-title">Positions</div>
-      <div id="positions"><div class="loading">Loading...</div></div>
+      <div class="card-title">当前持仓</div>
+      <div id="positions"><div class="loading">加载中…</div></div>
     </div>
   </div>
 
   <div id="markets" class="section">
-    <input type="text" class="search" placeholder="Search markets..." id="market-search">
-    <div id="market-list"><div class="loading">Loading...</div></div>
+    <input type="text" class="search" placeholder="搜索市场…" id="market-search">
+    <div id="market-list"><div class="loading">加载中…</div></div>
   </div>
 
   <div id="arb" class="section">
     <div class="card">
-      <div class="card-title">Active Opportunities</div>
-      <div id="arb-list"><div class="loading">Loading...</div></div>
+      <div class="card-title">活跃机会</div>
+      <div id="arb-list"><div class="loading">加载中…</div></div>
     </div>
-    <button class="btn" onclick="scanArb()">Scan Now</button>
+    <button class="btn" onclick="scanArb()">立即扫描</button>
   </div>
 
   <script>
@@ -2290,7 +2290,7 @@ export function createServer(
         pnlEl.className = 'card-value ' + (data.stats.totalPnl >= 0 ? 'positive' : 'negative');
 
         if (data.recentTrades.length === 0) {
-          document.getElementById('positions').innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No positions yet</div></div>';
+          document.getElementById('positions').innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">暂无持仓</div></div>';
         } else {
           document.getElementById('positions').innerHTML = data.recentTrades.slice(0, 5).map(t => \`
             <div class="list-item">
@@ -2298,12 +2298,12 @@ export function createServer(
                 <div class="name">\${t.market.slice(0, 30)}\${t.market.length > 30 ? '...' : ''}</div>
                 <div class="value">\${formatUSD(t.size)} @ \${(t.entryPrice * 100).toFixed(0)}%</div>
               </div>
-              <span class="badge \${t.side.toLowerCase()}">\${t.side}</span>
+              <span class="badge \${t.side.toLowerCase()}">\${t.side === 'buy' ? '买入' : '卖出'}</span>
             </div>
           \`).join('');
         }
       } catch (err) {
-        document.getElementById('positions').innerHTML = '<div class="empty"><div class="empty-text">Failed to load portfolio</div></div>';
+        document.getElementById('positions').innerHTML = '<div class="empty"><div class="empty-text">加载持仓失败</div></div>';
       }
     }
 
@@ -2316,36 +2316,36 @@ export function createServer(
         const data = await res.json();
 
         if (!data.results || data.results.length === 0) {
-          document.getElementById('market-list').innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No markets found</div></div>';
+          document.getElementById('market-list').innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">未找到相关市场</div></div>';
           return;
         }
 
         document.getElementById('market-list').innerHTML = data.results.slice(0, 10).map(m => \`
           <div class="list-item">
             <div>
-              <div class="name">\${m.question?.slice(0, 40) || m.title?.slice(0, 40) || 'Market'}\${(m.question || m.title || '').length > 40 ? '...' : ''}</div>
+              <div class="name">\${m.question?.slice(0, 40) || m.title?.slice(0, 40) || '市场'}\${(m.question || m.title || '').length > 40 ? '...' : ''}</div>
               <div class="value">\${m.platform}</div>
             </div>
             <div>\${m.yesPrice ? ((m.yesPrice * 100).toFixed(0) + '%') : '-'}</div>
           </div>
         \`).join('');
       } catch (err) {
-        document.getElementById('market-list').innerHTML = '<div class="empty"><div class="empty-text">Failed to load markets</div></div>';
+        document.getElementById('market-list').innerHTML = '<div class="empty"><div class="empty-text">加载市场失败</div></div>';
       }
     }
 
     // Load arbitrage opportunities
     async function loadArb() {
-      document.getElementById('arb-list').innerHTML = '<div class="empty"><div class="empty-icon">⚡</div><div class="empty-text">Use the Scan button to find opportunities</div></div>';
+      document.getElementById('arb-list').innerHTML = '<div class="empty"><div class="empty-icon">⚡</div><div class="empty-text">点击「立即扫描」寻找套利机会</div></div>';
     }
 
     async function scanArb() {
-      document.getElementById('arb-list').innerHTML = '<div class="loading">Scanning...</div>';
+      document.getElementById('arb-list').innerHTML = '<div class="loading">扫描中…</div>';
       Telegram.HapticFeedback.impactOccurred('medium');
 
       // Simulate scan (would call real API)
       setTimeout(() => {
-        document.getElementById('arb-list').innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">No opportunities found above 1% edge</div></div>';
+        document.getElementById('arb-list').innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">未发现超过 1% 优势的套利机会</div></div>';
       }, 1500);
     }
 
@@ -2365,12 +2365,12 @@ export function createServer(
 </html>`);
   });
 
-  // Performance dashboard HTML UI
+  // Performance dashboard HTML UI（页面文案必须中文，报错要展示真实原因，不要误导为交易未开启）
   app.get('/dashboard', (_req, res) => {
     res.send(`<!DOCTYPE html>
 <html>
 <head>
-  <title>Clodds Performance Dashboard</title>
+  <title>Clodds 绩效看板</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2407,11 +2407,11 @@ export function createServer(
 </head>
 <body>
   <div class="header">
-    <h1>Performance Dashboard</h1>
-    <button class="refresh" onclick="loadData()">Refresh</button>
+    <h1>绩效看板</h1>
+    <button class="refresh" onclick="loadData()">刷新</button>
   </div>
   <div class="container">
-    <div id="content" class="loading">Loading...</div>
+    <div id="content" class="loading">加载中…</div>
   </div>
 
   <script>
@@ -2420,15 +2420,15 @@ export function createServer(
 
     async function loadData() {
       const content = document.getElementById('content');
-      content.innerHTML = '<div class="loading">Loading...</div>';
+      content.innerHTML = '<div class="loading">加载中…</div>';
 
       try {
         const res = await fetch('/api/performance');
-        if (!res.ok) throw new Error('Failed to load data');
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || '接口返回异常（HTTP ' + res.status + '）');
         render(data);
       } catch (err) {
-        content.innerHTML = '<div class="error">Failed to load performance data. Make sure trading is enabled.</div>';
+        content.innerHTML = '<div class="error">加载绩效数据失败：' + (err.message || '未知错误') + '<br><br>请确认网关服务正在运行，并查看服务端日志中的「Performance dashboard」相关报错。</div>';
       }
     }
 
@@ -2448,55 +2448,55 @@ export function createServer(
       const html = \`
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="label">Total Trades</div>
+            <div class="label">总交易笔数</div>
             <div class="value">\${stats.totalTrades}</div>
           </div>
           <div class="stat-card">
-            <div class="label">Win Rate</div>
+            <div class="label">胜率</div>
             <div class="value \${stats.winRate >= 50 ? 'positive' : 'negative'}">\${stats.winRate.toFixed(1)}%</div>
           </div>
           <div class="stat-card">
-            <div class="label">Total P&L</div>
+            <div class="label">总盈亏</div>
             <div class="value \${stats.totalPnl >= 0 ? 'positive' : 'negative'}">\${formatCurrency(stats.totalPnl)}</div>
           </div>
           <div class="stat-card">
-            <div class="label">Avg P&L %</div>
+            <div class="label">平均盈亏</div>
             <div class="value \${stats.avgPnlPct >= 0 ? 'positive' : 'negative'}">\${formatPercent(stats.avgPnlPct)}</div>
           </div>
           <div class="stat-card">
-            <div class="label">Sharpe Ratio</div>
+            <div class="label">夏普比率</div>
             <div class="value \${stats.sharpeRatio >= 1 ? 'positive' : stats.sharpeRatio < 0 ? 'negative' : ''}">\${stats.sharpeRatio.toFixed(2)}</div>
           </div>
           <div class="stat-card">
-            <div class="label">Max Drawdown</div>
+            <div class="label">最大回撤</div>
             <div class="value negative">\${formatPercent(-stats.maxDrawdown)}</div>
           </div>
         </div>
 
         <div class="charts-grid">
           <div class="chart-card">
-            <h3>Cumulative P&L</h3>
+            <h3>累计盈亏曲线</h3>
             <div class="chart-container"><canvas id="pnlChart"></canvas></div>
           </div>
           <div class="chart-card">
-            <h3>By Strategy</h3>
+            <h3>按策略分布</h3>
             <div class="chart-container"><canvas id="strategyChart"></canvas></div>
           </div>
         </div>
 
         <div class="chart-card">
-          <h3>Recent Trades</h3>
+          <h3>最近交易</h3>
           <table class="trades-table">
             <thead>
               <tr>
-                <th>Time</th>
-                <th>Market</th>
-                <th>Side</th>
-                <th>Size</th>
-                <th>Entry</th>
-                <th>Exit</th>
-                <th>P&L</th>
-                <th>Status</th>
+                <th>时间</th>
+                <th>市场</th>
+                <th>方向</th>
+                <th>数量</th>
+                <th>入场价</th>
+                <th>出场价</th>
+                <th>盈亏</th>
+                <th>状态</th>
               </tr>
             </thead>
             <tbody>
@@ -2504,12 +2504,12 @@ export function createServer(
                 <tr>
                   <td>\${new Date(t.timestamp).toLocaleString()}</td>
                   <td>\${t.market.slice(0, 40)}\${t.market.length > 40 ? '...' : ''}</td>
-                  <td><span class="badge \${t.side.toLowerCase()}">\${t.side}</span></td>
+                  <td><span class="badge \${t.side.toLowerCase()}">\${t.side === 'buy' ? '买入' : '卖出'}</span></td>
                   <td>$\${t.size.toLocaleString()}</td>
                   <td>\${(t.entryPrice * 100).toFixed(1)}%</td>
                   <td>\${t.exitPrice ? (t.exitPrice * 100).toFixed(1) + '%' : '-'}</td>
                   <td class="\${(t.pnl || 0) >= 0 ? 'positive' : 'negative'}">\${t.pnl != null ? formatCurrency(t.pnl) : '-'}</td>
-                  <td><span class="badge \${t.status === 'win' ? 'win' : t.status === 'loss' ? 'loss' : 'open'}">\${t.status}</span></td>
+                  <td><span class="badge \${t.status === 'win' ? 'win' : t.status === 'loss' ? 'loss' : 'open'}">\${t.status === 'win' ? '盈利' : t.status === 'loss' ? '亏损' : '持仓中'}</span></td>
                 </tr>
               \`).join('')}
             </tbody>
@@ -2527,7 +2527,7 @@ export function createServer(
         data: {
           labels: dailyPnl.map(d => d.date),
           datasets: [{
-            label: 'Cumulative P&L',
+            label: '累计盈亏',
             data: dailyPnl.map(d => d.cumulative),
             borderColor: '#1d9bf0',
             backgroundColor: 'rgba(29, 155, 240, 0.1)',
