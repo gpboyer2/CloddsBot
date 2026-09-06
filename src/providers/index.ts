@@ -270,6 +270,10 @@ export class AnthropicProvider implements Provider {
       maxRetries: 3,
       ...config,
     };
+    // 必须认 ANTHROPIC_BASE_URL：本类是手写 fetch，不走 @anthropic-ai/sdk，
+    // 而 SDK 那条路（agents/index.ts）会自动读这个环境变量改道中转站。
+    // 不认的话同一个进程里两条路打到不同地址，健康检查永远探的是官方站（本机不通）。
+    this.config.baseUrl = process.env.ANTHROPIC_BASE_URL || this.config.baseUrl;
 
     // Set up retry configuration
     const policy = config.retryPolicy ? RETRY_POLICIES[config.retryPolicy] : RETRY_POLICIES.anthropic;
@@ -412,20 +416,17 @@ export class AnthropicProvider implements Provider {
 
   async isAvailable(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.config.baseUrl}/v1/messages`, {
-        method: 'POST',
+      // 只做 GET /v1/models 探活，不真正调模型：
+      // 1) 原来写死用 claude-3-haiku-20240307 发一条真实消息，这个模型 2026-02-19 已停用，
+      //    换中转站后更是直接 404，健康检查永远失败、每 30 秒刷一条 WARN；
+      // 2) 探活本来就不该花钱花 token。
+      const response = await fetch(`${this.config.baseUrl}/v1/models`, {
         headers: {
-          'Content-Type': 'application/json',
           'x-api-key': this.config.apiKey,
           'anthropic-version': '2023-06-01',
         },
-        body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
-          max_tokens: 1,
-          messages: [{ role: 'user', content: 'hi' }],
-        }),
       });
-      return response.ok || response.status === 400; // 400 means auth is valid
+      return response.ok;
     } catch {
       return false;
     }
@@ -489,6 +490,10 @@ export class OpenAIProvider implements Provider {
       maxRetries: 3,
       ...config,
     };
+    // 必须认 OPENAI_BASE_URL：本类是手写 fetch，不走 OpenAI 官方 SDK。
+    // 不认的话配了 .env 也无效， embeddings/探活仍然直连 api.openai.com（本机不通）。
+    // 注意拼接规则是 baseUrl + '/v1/chat/completions'，所以这里只能配不带 /v1 的根地址。
+    this.config.baseUrl = process.env.OPENAI_BASE_URL || this.config.baseUrl;
 
     // Set up retry configuration
     const policy = config.retryPolicy ? RETRY_POLICIES[config.retryPolicy] : RETRY_POLICIES.openai;

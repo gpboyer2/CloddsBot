@@ -2,6 +2,7 @@
  * HTTP utilities with rate limiting + retry for API calls.
  */
 
+import { EnvHttpProxyAgent, setGlobalDispatcher } from 'undici';
 import { RateLimiter, type RateLimitConfig } from '../security';
 import { retry, type RetryConfig } from '../infra/retry';
 import { logger } from './logger';
@@ -220,6 +221,17 @@ export function configureHttpClient(config?: HttpRateLimitConfig): void {
 }
 
 export function installHttpClient(config?: HttpRateLimitConfig): void {
+  // Node 的原生 fetch（内置 undici）默认完全无视 HTTPS_PROXY / HTTP_PROXY 环境变量，
+  // 不装这个 dispatcher，本机 Clash Verge（7890）就形同虚设，Polymarket / Kalshi / Binance 全部超时。
+  // 为什么不用 Node 22 的 NODE_USE_ENV_PROXY 开关：那个开关只在进程启动时读一次，
+  // 而 .env 是 src/index.ts 运行时才用 dotenv 加载进去的，所以对 .env 里配的代理地址永远无效。
+  // EnvHttpProxyAgent 自己会读 HTTPS_PROXY / HTTP_PROXY / NO_PROXY，这里不用再传地址。
+  const proxyUrl = process.env.HTTPS_PROXY || process.env.https_proxy || process.env.HTTP_PROXY || process.env.http_proxy;
+  if (proxyUrl) {
+    setGlobalDispatcher(new EnvHttpProxyAgent({ connectTimeout: 10_000 }));
+    logger.info({ proxyUrl }, 'HTTP proxy dispatcher installed');
+  }
+
   if (!originalFetch) {
     originalFetch = globalThis.fetch.bind(globalThis);
     globalThis.fetch = fetchWithControl;

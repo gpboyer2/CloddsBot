@@ -239,7 +239,10 @@ async function main() {
     updateStep(idxChannels, 'running');
     updateStep(idxGateway, 'running');
 
-    let gateway;
+    // 必须显式标类型：不标的话 TS 推导成隐式 any，`npm run build` 的 tsc 会直接报错中止。
+    // 这里不加 | undefined 是因为下面注册 SIGINT/SIGTERM 的位置一定在 createGateway 成功之后，
+    // 走到 shutdown 时它必然已经赋值；加了 undefined 反而要在闭包里到处做无意义的判空。
+    let gateway: Awaited<ReturnType<typeof createGateway>>;
     try {
       gateway = await createGateway(config);
       updateStep(idxDatabase, 'done');
@@ -248,9 +251,8 @@ async function main() {
     } catch (e) {
       updateStep(idxDatabase, 'failed');
       stopSpinner();
-      if (gateway) {
-        try { await gateway.stop(); } catch { /* ignore cleanup errors */ }
-      }
+      // 这里没有 gateway.stop()：createGateway 只要抛错就说明它压根没返回实例，
+      // 没有东西需要清理，原来那句 `if (gateway) await gateway.stop()` 是永远走不到的死代码。
       throw e;
     }
 
