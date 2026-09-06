@@ -179,6 +179,71 @@ export class Chat {
     this._scrollToBottom();
   }
 
+  // ==========================================================================
+  // 思考过程气泡：流式接收模型的 thinking 增量，渲染成灰色可折叠块。
+  // 正文（bot 消息）一旦到达就自动折叠，避免喧宾夺主。
+  // ==========================================================================
+  addThinkingMessage(text, messageId) {
+    this.hideWelcome();
+    const row = document.createElement('div');
+    row.className = 'msg-row thinking-row';
+    if (messageId) row.dataset.messageId = messageId;
+
+    const avatar = this._createBotAvatar();
+    const content = document.createElement('div');
+    content.className = 'msg-content';
+
+    const block = document.createElement('div');
+    block.className = 'thinking-block streaming';
+
+    const header = document.createElement('div');
+    header.className = 'thinking-header';
+    header.innerHTML = '<span class="thinking-label">💭 思考中…</span><span class="thinking-toggle">收起</span>';
+
+    const body = document.createElement('div');
+    body.className = 'thinking-body';
+    body.textContent = text || '';
+
+    header.addEventListener('click', () => {
+      const collapsed = block.classList.toggle('collapsed');
+      header.querySelector('.thinking-toggle').textContent = collapsed ? '展开' : '收起';
+    });
+
+    block.appendChild(header);
+    block.appendChild(body);
+    content.appendChild(block);
+    row.appendChild(avatar);
+    row.appendChild(content);
+    this.messagesEl.appendChild(row);
+    this._scrollToBottom();
+  }
+
+  editThinking(messageId, newText) {
+    const row = Array.from(this.messagesEl.children)
+      .find(el => el.dataset?.messageId === messageId);
+    if (!row) return;
+    const block = row.querySelector('.thinking-block');
+    const body = row.querySelector('.thinking-body');
+    const label = row.querySelector('.thinking-label');
+    if (body) body.textContent = newText || '';
+    if (block) block.classList.add('streaming');
+    if (label) label.textContent = '💭 思考中…';
+    this._scrollToBottom();
+  }
+
+  // 正文到达后把思考气泡标记为完成并折叠
+  finishThinking() {
+    const blocks = this.messagesEl.querySelectorAll('.thinking-block.streaming');
+    for (const block of blocks) {
+      block.classList.remove('streaming');
+      const label = block.querySelector('.thinking-label');
+      if (label) label.textContent = '💭 思考过程';
+      block.classList.add('collapsed');
+      const toggle = block.querySelector('.thinking-toggle');
+      if (toggle) toggle.textContent = '展开';
+    }
+  }
+
   _createActions() {
     const actions = document.createElement('div');
     actions.className = 'msg-actions';

@@ -368,8 +368,14 @@ class App {
     });
 
     this.ws.on('message', (msg) => {
-      this.chat.hideTyping();
-      this._setGenerating(false);
+      // typing 指示器只在实际内容（正文/思考/错误）到达时才隐藏。
+      // 注意不能在这里无条件隐藏：ack/pong 等控制消息会提前到达，
+      // 之前就是被 ack 立刻关掉指示器，模型思考期间用户看到的是一片空白。
+      const CONTENT_TYPES = ['message', 'edit', 'thinking', 'error'];
+      if (CONTENT_TYPES.includes(msg.type)) {
+        this.chat.hideTyping();
+        this._setGenerating(false);
+      }
 
       if (msg.type === 'authenticated') {
         statusDot.className = 'status-dot connected';
@@ -385,7 +391,13 @@ class App {
         // Session switch confirmed
       } else if (msg.type === 'message') {
         this._setWelcomeMode(false);
+        if (msg.kind === 'thinking') {
+          // 模型思考过程：独立灰色气泡，不进历史、不触发已读计数
+          this.chat.addThinkingMessage(msg.text, msg.messageId);
+          return;
+        }
         this.chat.addBotMessage(msg.text, msg.messageId, msg.attachments);
+        this.chat.finishThinking();
         // Feed new bot message to sidebar for live artifact extraction
         if (this.activeSessionId && msg.text) {
           this.sidebar.feedMessages(this.activeSessionId, [{ role: 'assistant', content: msg.text }]);
@@ -395,7 +407,12 @@ class App {
           document.title = `(${this._unreadCount}) 新消息 - Clodds`;
         }
       } else if (msg.type === 'edit') {
+        if (msg.kind === 'thinking') {
+          this.chat.editThinking(msg.messageId, msg.text);
+          return;
+        }
         this.chat.editMessage(msg.messageId, msg.text);
+        this.chat.finishThinking();
       } else if (msg.type === 'delete') {
         this.chat.deleteMessage(msg.messageId);
       } else if (msg.type === 'error') {
