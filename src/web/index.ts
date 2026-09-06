@@ -591,11 +591,11 @@ export class WebServer extends EventEmitter {
 // =============================================================================
 
 const CHAT_HTML = `<!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clodds Chat</title>
+  <title>Clodds 聊天</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -675,13 +675,13 @@ const CHAT_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <header>
-    <h1>Clodds</h1>
-    <div id="status">Connecting...</div>
+    <h1>Clodds 聊天</h1>
+    <div id="status">连接中...</div>
   </header>
   <div id="messages"></div>
   <div id="input-area">
-    <input type="text" id="input" placeholder="Type a message..." autocomplete="off">
-    <button onclick="send()">Send</button>
+    <input type="text" id="input" placeholder="输入消息..." autocomplete="off">
+    <button onclick="send()">发送</button>
   </div>
   <script>
     const messages = document.getElementById('messages');
@@ -694,12 +694,12 @@ const CHAT_HTML = `<!DOCTYPE html>
       ws = new WebSocket(protocol + '//' + location.host);
 
       ws.onopen = () => {
-        status.textContent = 'Connected';
+        status.textContent = '已连接';
         status.className = 'connected';
       };
 
       ws.onclose = () => {
-        status.textContent = 'Disconnected - Reconnecting...';
+        status.textContent = '已断开 - 重新连接中...';
         status.className = '';
         setTimeout(connect, 3000);
       };

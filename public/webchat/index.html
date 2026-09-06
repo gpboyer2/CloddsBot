@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
@@ -14,41 +14,41 @@
       <!-- Icon Rail (always visible) -->
       <div class="sidebar-rail">
         <div class="rail-top">
-          <button class="rail-btn" id="sidebar-toggle" title="Toggle sidebar">
+          <button class="rail-btn" id="sidebar-toggle" title="切换侧边栏">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>
             </svg>
           </button>
-          <button class="rail-btn" id="new-chat-btn" title="New chat">
+          <button class="rail-btn" id="new-chat-btn" title="新对话">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </button>
         </div>
         <nav class="rail-nav">
-          <button class="rail-btn active" data-tab="chats" title="Chats">
+          <button class="rail-btn active" data-tab="chats" title="对话">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
           </button>
-          <button class="rail-btn" data-tab="projects" title="Projects">
+          <button class="rail-btn" data-tab="projects" title="项目">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>
             </svg>
           </button>
-          <button class="rail-btn" data-tab="artifacts" title="Artifacts">
+          <button class="rail-btn" data-tab="artifacts" title="产物">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
             </svg>
           </button>
-          <button class="rail-btn" data-tab="code" title="Code">
+          <button class="rail-btn" data-tab="code" title="代码">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
             </svg>
           </button>
         </nav>
         <div class="rail-bottom">
-          <button class="rail-btn rail-profile-btn" id="rail-profile-btn" title="Profile">
+          <button class="rail-btn rail-profile-btn" id="rail-profile-btn" title="个人中心">
             <div class="rail-avatar">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -62,32 +62,32 @@
       <!-- Expandable Panel -->
       <div class="sidebar-panel">
         <div class="sidebar-search">
-          <input class="sidebar-search-input" type="text" placeholder="Search..." aria-label="Search" />
+          <input class="sidebar-search-input" type="text" placeholder="搜索..." aria-label="搜索" />
         </div>
 
         <!-- Tab Content Panels -->
         <div class="sidebar-tab-content active" data-panel="chats">
-          <div class="session-list" role="list" aria-label="Conversations"></div>
+          <div class="session-list" role="list" aria-label="会话列表"></div>
         </div>
 
         <div class="sidebar-tab-content" data-panel="projects">
           <div class="tab-panel-header">
-            <button class="tab-panel-action" id="new-project-btn" title="New project">
+            <button class="tab-panel-action" id="new-project-btn" title="新建项目">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
-              New Project
+              新建项目
             </button>
           </div>
-          <div class="project-list" role="list" aria-label="Projects"></div>
+          <div class="project-list" role="list" aria-label="项目列表"></div>
         </div>
 
         <div class="sidebar-tab-content" data-panel="artifacts">
-          <div class="artifact-list" role="list" aria-label="Artifacts"></div>
+          <div class="artifact-list" role="list" aria-label="产物列表"></div>
         </div>
 
         <div class="sidebar-tab-content" data-panel="code">
-          <div class="code-list" role="list" aria-label="Code snippets"></div>
+          <div class="code-list" role="list" aria-label="代码片段"></div>
         </div>
 
         <!-- Profile Bar (bottom of panel) -->
@@ -98,7 +98,7 @@
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
-          <span class="sidebar-profile-name">Profile</span>
+          <span class="sidebar-profile-name">个人中心</span>
           <svg class="sidebar-profile-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
@@ -112,17 +112,17 @@
               <line x1="2" y1="12" x2="22" y2="12"/>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
             </svg>
-            <span>Language</span>
+            <span>语言</span>
             <select class="popover-select" id="language-select">
               <option value="en-US">English</option>
-              <option value="es-ES">Spanish</option>
-              <option value="fr-FR">French</option>
-              <option value="de-DE">German</option>
-              <option value="pt-BR">Portuguese</option>
-              <option value="ja-JP">Japanese</option>
-              <option value="zh-CN">Chinese</option>
-              <option value="ko-KR">Korean</option>
-              <option value="ar-SA">Arabic</option>
+              <option value="es-ES">Español</option>
+              <option value="fr-FR">Français</option>
+              <option value="de-DE">Deutsch</option>
+              <option value="pt-BR">Português</option>
+              <option value="ja-JP">日本語</option>
+              <option value="zh-CN">中文</option>
+              <option value="ko-KR">한국어</option>
+              <option value="ar-SA">العربية</option>
             </select>
           </div>
           <div class="popover-item" id="popover-settings">
@@ -130,7 +130,7 @@
               <circle cx="12" cy="12" r="3"/>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             </svg>
-            <span>Environment Setup</span>
+            <span>环境设置</span>
           </div>
           <div class="popover-item" id="popover-help">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -138,7 +138,7 @@
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
               <line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            <span>Get Help</span>
+            <span>获取帮助</span>
           </div>
           <div class="popover-divider"></div>
           <div class="popover-item popover-about" id="popover-about">
@@ -147,7 +147,7 @@
               <line x1="12" y1="16" x2="12" y2="12"/>
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
-            <span>About</span>
+            <span>关于</span>
             <span class="popover-version">Clodds v1.1</span>
           </div>
         </div>
@@ -155,21 +155,21 @@
         <!-- Settings Panel (slides over panel) -->
         <div class="settings-panel" id="settings-panel">
           <div class="settings-header">
-            <button class="settings-back" id="settings-back" title="Back">
+            <button class="settings-back" id="settings-back" title="返回">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 18 9 12 15 6"/>
               </svg>
             </button>
-            <span class="settings-title">Environment Setup</span>
+            <span class="settings-title">环境设置</span>
           </div>
           <div class="settings-restart-banner" id="settings-restart-banner">
-            Restart required for some changes to take effect.
+            部分更改需要重启才能生效。
           </div>
           <div class="settings-body" id="settings-body">
-            <div class="settings-loading">Loading...</div>
+            <div class="settings-loading">加载中...</div>
           </div>
           <div class="settings-footer">
-            <button class="settings-save-btn" id="settings-save" disabled>Save Changes</button>
+            <button class="settings-save-btn" id="settings-save" disabled>保存更改</button>
           </div>
         </div>
       </div>
@@ -180,12 +180,12 @@
     <!-- Main -->
     <main class="main welcome-mode" aria-label="Chat">
       <header class="chat-header">
-        <button class="sidebar-icon-btn" id="sidebar-toggle-mobile" title="Toggle sidebar">
+        <button class="sidebar-icon-btn" id="sidebar-toggle-mobile" title="切换侧边栏">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
-        <h1 class="chat-header-title" id="header-title">New chat</h1>
+        <h1 class="chat-header-title" id="header-title">新对话</h1>
         <div class="header-right">
           <span class="header-status" id="header-status">
             <span class="status-dot" id="status-dot"></span>
@@ -196,7 +196,7 @@
       <!-- Reconnect banner -->
       <div class="reconnect-banner" id="reconnect-banner">
         <div class="reconnect-spinner"></div>
-        Reconnecting...
+        正在重新连接...
       </div>
 
       <!-- Chat messages -->
@@ -205,13 +205,13 @@
         <div class="welcome" id="welcome">
           <img class="welcome-logo" src="logo.png" alt="Clodds" />
           <h2 class="welcome-greeting" id="welcome-greeting"></h2>
-          <p class="welcome-sub">How can I help you today?</p>
+          <p class="welcome-sub">今天有什么可以帮你的？</p>
           <div class="welcome-pulse" id="welcome-pulse"></div>
         </div>
       </div>
 
       <!-- Scroll to bottom -->
-      <button class="scroll-bottom" id="scroll-bottom" title="Scroll to bottom" aria-label="Scroll to bottom">
+      <button class="scroll-bottom" id="scroll-bottom" title="滚动到底部" aria-label="滚动到底部">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="6 9 12 15 18 9"/>
         </svg>
@@ -221,7 +221,7 @@
       <div class="typing" id="typing">
         <div class="typing-indicator">
           <div class="typing-spinner"></div>
-          <span class="typing-label">Thinking</span>
+          <span class="typing-label">思考中</span>
           <span class="typing-elapsed" id="typing-elapsed"></span>
         </div>
       </div>
@@ -231,17 +231,17 @@
         <div class="file-preview" id="file-preview" style="display:none">
           <span class="file-preview-icon"></span>
           <span class="file-preview-name"></span>
-          <button class="file-preview-remove" title="Remove">&times;</button>
+          <button class="file-preview-remove" title="移除">&times;</button>
         </div>
         <div class="input-wrap">
-          <button class="attach-btn" id="attach-btn" title="Attach file" aria-label="Attach file">
+          <button class="attach-btn" id="attach-btn" title="附件" aria-label="附件">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
             </svg>
           </button>
           <input type="file" id="file-input" style="display:none" accept="image/*,.pdf,.json,.csv,.txt,.md,.js,.ts,.py,.rs,.go,.java,.c,.cpp,.h">
-          <textarea id="input" placeholder="Message Clodds..." rows="1" aria-label="Message input"></textarea>
-          <button class="mic-btn" id="mic-btn" title="Voice input" aria-label="Voice input">
+          <textarea id="input" placeholder="输入消息..." rows="1" aria-label="消息输入"></textarea>
+          <button class="mic-btn" id="mic-btn" title="语音输入" aria-label="语音输入">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
               <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
@@ -249,50 +249,50 @@
               <line x1="8" y1="23" x2="16" y2="23"/>
             </svg>
           </button>
-          <button id="send-btn" title="Send" aria-label="Send message">
+          <button id="send-btn" title="发送" aria-label="发送消息">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
             </svg>
           </button>
         </div>
         <div class="input-hint">
-          <kbd>Enter</kbd>&nbsp;to send &middot; <kbd>Shift+Enter</kbd>&nbsp;for new line &middot; <kbd>/</kbd>&nbsp;for commands
+          <kbd>Enter</kbd>&nbsp;发送 &middot; <kbd>Shift+Enter</kbd>&nbsp;换行 &middot; <kbd>/</kbd>&nbsp;命令
         </div>
         <div class="welcome-cards" id="welcome-cards">
-          <button class="welcome-card" data-msg="Show me trending prediction markets">
+          <button class="welcome-card" data-msg="展示热门的预测市场">
             <svg class="welcome-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
             </svg>
             <div class="welcome-card-text">
-              <span class="welcome-card-title">Markets</span>
-              <span class="welcome-card-sub">Browse trending markets</span>
+              <span class="welcome-card-title">市场</span>
+              <span class="welcome-card-sub">浏览热门市场</span>
             </div>
           </button>
-          <button class="welcome-card" data-msg="Show my portfolio and open positions">
+          <button class="welcome-card" data-msg="查看我的投资组合和当前持仓">
             <svg class="welcome-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/>
             </svg>
             <div class="welcome-card-text">
-              <span class="welcome-card-title">Portfolio</span>
-              <span class="welcome-card-sub">View positions & P&L</span>
+              <span class="welcome-card-title">投资组合</span>
+              <span class="welcome-card-sub">查看持仓与损益</span>
             </div>
           </button>
-          <button class="welcome-card" data-msg="What DeFi opportunities are available right now?">
+          <button class="welcome-card" data-msg="现在有哪些 DeFi 机会？">
             <svg class="welcome-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
             </svg>
             <div class="welcome-card-text">
               <span class="welcome-card-title">DeFi</span>
-              <span class="welcome-card-sub">Explore DeFi opportunities</span>
+              <span class="welcome-card-sub">探索 DeFi 机会</span>
             </div>
           </button>
-          <button class="welcome-card" data-msg="Help me get started with Clodds">
+          <button class="welcome-card" data-msg="帮我开始使用 Clodds">
             <svg class="welcome-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
             </svg>
             <div class="welcome-card-text">
-              <span class="welcome-card-title">Quick Start</span>
-              <span class="welcome-card-sub">Set up trading in minutes</span>
+              <span class="welcome-card-title">快速开始</span>
+              <span class="welcome-card-sub">几分钟内完成交易设置</span>
             </div>
           </button>
         </div>

@@ -121,7 +121,7 @@ export class Sidebar {
     // Language select
     const langSelect = this.sidebarEl.querySelector('#language-select');
     if (langSelect) {
-      const savedLang = Storage.get('webchat_language') || 'en-US';
+      const savedLang = Storage.get('webchat_language') || 'zh-CN';
       langSelect.value = savedLang;
       langSelect.addEventListener('change', () => {
         Storage.set('webchat_language', langSelect.value);
@@ -156,12 +156,12 @@ export class Sidebar {
     // Update search placeholder
     if (this.searchEl) {
       const placeholders = {
-        chats: 'Search chats...',
-        projects: 'Search projects...',
-        artifacts: 'Search artifacts...',
-        code: 'Search code...',
+        chats: '搜索对话...',
+        projects: '搜索项目...',
+        artifacts: '搜索产物...',
+        code: '搜索代码...',
       };
-      this.searchEl.placeholder = placeholders[tab] || 'Search...';
+      this.searchEl.placeholder = placeholders[tab] || '搜索...';
     }
 
     this._renderActiveTab();
@@ -244,7 +244,7 @@ export class Sidebar {
   feedMessages(sessionId, messages) {
     if (!messages?.length) return;
     const session = this.sessions.find(s => s.id === sessionId);
-    const sessionTitle = session?.title || session?.lastMessage || 'Untitled';
+    const sessionTitle = session?.title || session?.lastMessage || '未命名';
 
     const artifacts = [];
     const codes = [];
@@ -265,7 +265,7 @@ export class Sidebar {
           type: 'code',
           lang,
           content: code,
-          preview: firstLine || '(empty)',
+          preview: firstLine || '（空）',
           sessionId,
           sessionTitle,
           messageIndex: i,
@@ -325,7 +325,7 @@ export class Sidebar {
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'session-rename-input';
-    input.value = session.title || session.lastMessage || 'New chat';
+    input.value = session.title || session.lastMessage || '新对话';
     titleSpan.replaceWith(input);
     input.focus();
     input.select();
@@ -335,13 +335,13 @@ export class Sidebar {
       if (done) return;
       done = true;
       const newTitle = input.value.trim();
-      if (save && newTitle && newTitle !== (session.title || session.lastMessage || 'New chat')) {
+      if (save && newTitle && newTitle !== (session.title || session.lastMessage || '新对话')) {
         session.title = newTitle;
         this.onRename?.(session.id, newTitle);
       }
       const newSpan = document.createElement('span');
       newSpan.className = 'session-title';
-      newSpan.textContent = session.title || session.lastMessage || 'New chat';
+      newSpan.textContent = session.title || session.lastMessage || '新对话';
       input.replaceWith(newSpan);
       item.title = newSpan.textContent;
       newSpan.addEventListener('dblclick', (e) => {
@@ -366,14 +366,14 @@ export class Sidebar {
     const lastWeek = new Date(today.getTime() - 7 * 86400000);
 
     const groups = [
-      ['Today', []],
-      ['Yesterday', []],
-      ['Last 7 days', []],
-      ['Older', []],
+      ['今天', []],
+      ['昨天', []],
+      ['最近7天', []],
+      ['更早', []],
     ];
 
     for (const s of this.sessions) {
-      const title = s.title || s.lastMessage || 'New chat';
+      const title = s.title || s.lastMessage || '新对话';
       if (filter && !title.toLowerCase().includes(filter)) continue;
 
       const d = new Date(s.updatedAt);
@@ -399,7 +399,7 @@ export class Sidebar {
       group.appendChild(groupLabel);
 
       for (const s of items) {
-        const title = s.title || s.lastMessage || 'New chat';
+        const title = s.title || s.lastMessage || '新对话';
         const isActive = s.id === this.activeSessionId;
 
         const item = document.createElement('div');
@@ -416,7 +416,7 @@ export class Sidebar {
         const delBtn = document.createElement('button');
         delBtn.className = 'session-delete';
         delBtn.dataset.id = s.id;
-        delBtn.title = 'Delete';
+        delBtn.title = '删除';
         delBtn.innerHTML = '&times;';
         item.appendChild(delBtn);
 
@@ -450,7 +450,7 @@ export class Sidebar {
     if (!hasItems) {
       const empty = document.createElement('div');
       empty.className = 'session-empty';
-      empty.textContent = filter ? 'No results for "' + filter + '"' : 'No conversations yet';
+      empty.textContent = filter ? '没有搜索结果：' + filter : '暂无对话';
       frag.appendChild(empty);
     }
 
@@ -474,7 +474,7 @@ export class Sidebar {
     const header = document.createElement('div');
     header.className = 'context-menu-item';
     header.style.cssText = 'font-size:11px;color:var(--text-dim);cursor:default;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;';
-    header.textContent = 'Move to Project';
+    header.textContent = '移动到项目';
     menu.appendChild(header);
 
     const divider = document.createElement('div');
@@ -540,7 +540,7 @@ export class Sidebar {
   }
 
   _createProject() {
-    const name = prompt('Project name:');
+    const name = prompt('项目名称：');
     if (!name?.trim()) return;
     const project = {
       id: 'proj-' + Date.now(),
@@ -553,7 +553,7 @@ export class Sidebar {
   }
 
   _deleteProject(projectId) {
-    if (!confirm('Delete this project? Chats will not be deleted.')) return;
+    if (!confirm('删除该项目？对话不会被删除。')) return;
     this._projects = this._projects.filter(p => p.id !== projectId);
     this._saveProjects();
     this._renderActiveTab();
@@ -562,7 +562,7 @@ export class Sidebar {
   _renameProject(projectId) {
     const project = this._projects.find(p => p.id === projectId);
     if (!project) return;
-    const name = prompt('Rename project:', project.name);
+    const name = prompt('重命名项目：', project.name);
     if (!name?.trim()) return;
     project.name = name.trim();
     this._saveProjects();
@@ -581,7 +581,7 @@ export class Sidebar {
     if (!filtered.length) {
       const empty = document.createElement('div');
       empty.className = 'session-empty';
-      empty.textContent = filter ? 'No projects match "' + filter + '"' : 'No projects yet';
+      empty.textContent = filter ? '没有匹配的项目：' + filter : '暂无项目';
       frag.appendChild(empty);
       listEl.innerHTML = '';
       listEl.appendChild(frag);
@@ -624,7 +624,7 @@ export class Sidebar {
       const delBtn = document.createElement('button');
       delBtn.className = 'project-delete';
       delBtn.innerHTML = '&times;';
-      delBtn.title = 'Delete project';
+      delBtn.title = '删除项目';
       delBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         this._deleteProject(project.id);
@@ -658,7 +658,7 @@ export class Sidebar {
 
         const title = document.createElement('span');
         title.className = 'session-title';
-        title.textContent = session.title || session.lastMessage || 'New chat';
+        title.textContent = session.title || session.lastMessage || '新对话';
         sessionItem.appendChild(title);
 
         sessionItem.addEventListener('click', () => {
@@ -672,7 +672,7 @@ export class Sidebar {
         const empty = document.createElement('div');
         empty.className = 'session-empty';
         empty.style.padding = '8px 14px';
-        empty.textContent = 'No chats assigned';
+        empty.textContent = '暂无对话';
         sessionsDiv.appendChild(empty);
       }
 
@@ -698,7 +698,7 @@ export class Sidebar {
     if (!filtered.length) {
       const empty = document.createElement('div');
       empty.className = 'session-empty';
-      empty.textContent = filter ? 'No artifacts match "' + filter + '"' : 'No artifacts found yet. Send some messages with code, tables, or images.';
+      empty.textContent = filter ? '没有匹配的产物：' + filter : '暂无产物。发送包含代码、表格或图片的消息后会自动提取。';
       frag.appendChild(empty);
       listEl.innerHTML = '';
       listEl.appendChild(frag);
@@ -764,7 +764,7 @@ export class Sidebar {
     if (!filtered.length) {
       const empty = document.createElement('div');
       empty.className = 'session-empty';
-      empty.textContent = filter ? 'No code matches "' + filter + '"' : 'No code blocks found yet.';
+      empty.textContent = filter ? '没有匹配的代码：' + filter : '暂无代码块。';
       frag.appendChild(empty);
       listEl.innerHTML = '';
       listEl.appendChild(frag);
@@ -803,7 +803,7 @@ export class Sidebar {
       // Copy button
       const copyBtn = document.createElement('button');
       copyBtn.className = 'code-item-copy';
-      copyBtn.title = 'Copy code';
+      copyBtn.title = '复制代码';
       copyBtn.innerHTML = copySvg;
       copyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -840,7 +840,7 @@ export class Sidebar {
     panel.classList.add('visible');
 
     const body = panel.querySelector('#settings-body');
-    body.innerHTML = '<div class="settings-loading">Loading...</div>';
+    body.innerHTML = '<div class="settings-loading">加载中...</div>';
 
     try {
       const token = Storage.get('webchat_token') || '';
@@ -851,7 +851,7 @@ export class Sidebar {
       const data = await r.json();
       this._renderSettings(data.schema);
     } catch (err) {
-      body.innerHTML = '<div class="settings-error">Failed to load settings. Check authentication.</div>';
+      body.innerHTML = '<div class="settings-error">加载设置失败，请检查认证状态。</div>';
     }
   }
 
@@ -864,7 +864,7 @@ export class Sidebar {
     const saveBtn = this.sidebarEl.querySelector('#settings-save');
     if (saveBtn) {
       saveBtn.disabled = true;
-      saveBtn.textContent = 'Save Changes';
+      saveBtn.textContent = '保存更改';
     }
   }
 
@@ -906,7 +906,7 @@ export class Sidebar {
 
         const status = document.createElement('span');
         status.className = 'settings-field-status ' + (v.set ? 'set' : 'unset');
-        status.textContent = v.set ? 'Set' : 'Not set';
+        status.textContent = v.set ? '已设置' : '未设置';
         header.appendChild(status);
         field.appendChild(header);
 
@@ -920,7 +920,7 @@ export class Sidebar {
           link.target = '_blank';
           link.rel = 'noopener';
           link.className = 'settings-help-link';
-          link.textContent = 'Get key';
+          link.textContent = '获取密钥';
           envName.appendChild(document.createTextNode(' '));
           envName.appendChild(link);
         }
@@ -930,7 +930,7 @@ export class Sidebar {
         const input = document.createElement('input');
         input.className = 'settings-input';
         input.type = v.secret ? 'password' : 'text';
-        input.placeholder = v.set ? v.masked : 'Not configured';
+        input.placeholder = v.set ? v.masked : '未配置';
         input.dataset.key = v.key;
         input.addEventListener('input', () => {
           const val = input.value.trim();
@@ -942,7 +942,7 @@ export class Sidebar {
           const saveBtn = this.sidebarEl.querySelector('#settings-save');
           if (saveBtn) {
             saveBtn.disabled = Object.keys(this._settingsDirty).length === 0;
-            saveBtn.textContent = 'Save Changes';
+            saveBtn.textContent = '保存更改';
           }
         });
         field.appendChild(input);
@@ -962,7 +962,7 @@ export class Sidebar {
     const saveBtn = this.sidebarEl.querySelector('#settings-save');
     if (saveBtn) {
       saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
+      saveBtn.textContent = '保存中...';
     }
 
     try {
@@ -992,19 +992,19 @@ export class Sidebar {
       this._settingsDirty = {};
       await this._openSettings();
 
-      if (saveBtn) saveBtn.textContent = 'Saved!';
+      if (saveBtn) saveBtn.textContent = '已保存！';
       setTimeout(() => {
         if (saveBtn) {
-          saveBtn.textContent = 'Save Changes';
+          saveBtn.textContent = '保存更改';
           saveBtn.disabled = true;
         }
       }, 2000);
     } catch (err) {
       if (saveBtn) {
-        saveBtn.textContent = 'Error - Try Again';
+        saveBtn.textContent = '出错 - 重试';
         saveBtn.disabled = false;
         setTimeout(() => {
-          if (saveBtn) saveBtn.textContent = 'Save Changes';
+          if (saveBtn) saveBtn.textContent = '保存更改';
         }, 3000);
       }
     }

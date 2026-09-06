@@ -26,7 +26,7 @@ export const SUPPORTED_LOCALES = ['en', 'zh', 'es', 'ja', 'ko', 'de', 'fr', 'pt'
 export type Locale = typeof SUPPORTED_LOCALES[number];
 
 // Default locale
-const DEFAULT_LOCALE: Locale = 'en';
+const DEFAULT_LOCALE: Locale = 'zh';
 
 // Current locale state
 let currentLocale: Locale = DEFAULT_LOCALE;

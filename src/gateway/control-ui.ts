@@ -138,11 +138,11 @@ export function mountControlUI(
   app.get(prefix, authMiddleware, (_req, res) => {
     const html = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clodds Control</title>
+  <title>Clodds 控制台</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -205,39 +205,39 @@ export function mountControlUI(
 </head>
 <body>
   <div class="container">
-    <h1>🎯 Clodds Control</h1>
+    <h1>🎯 Clodds 控制台</h1>
 
     <div class="grid">
       <div class="card">
-        <h2>Status</h2>
+        <h2>状态</h2>
         <div class="value">
           <span id="statusDot" class="status-dot status-healthy"></span>
-          <span id="statusText">Healthy</span>
+          <span id="statusText">健康度</span>
         </div>
       </div>
 
       <div class="card">
-        <h2>Uptime</h2>
+        <h2>运行时间</h2>
         <div class="value" id="uptime">--</div>
       </div>
 
       <div class="card">
-        <h2>Version</h2>
+        <h2>版本</h2>
         <div class="value" id="version">--</div>
       </div>
 
       <div class="card">
-        <h2>Today's Usage</h2>
+        <h2>今日用量</h2>
         <div class="value" id="usage">--</div>
       </div>
     </div>
 
     <div class="card" style="margin-top: 1rem;">
-      <h2>Channels</h2>
-      <div id="channels" class="channel-list">Loading...</div>
+      <h2>通道</h2>
+      <div id="channels" class="channel-list">加载中...</div>
     </div>
 
-    <button class="refresh-btn" style="margin-top: 1rem;" onclick="refresh()">Refresh</button>
+    <button class="refresh-btn" style="margin-top: 1rem;" onclick="refresh()">刷新</button>
     <div id="lastUpdate"></div>
   </div>
 
@@ -266,10 +266,10 @@ export function mountControlUI(
           '<span class="status-dot status-' + (ch.status === 'connected' ? 'healthy' : 'unhealthy') + '"></span>' +
           ch.name +
           '</div>'
-        ).join('') || '<div style="color: #64748b">No channels connected</div>';
+        ).join('') || '<div style="color: #64748b">无已连接通道</div>';
 
         document.getElementById('channels').innerHTML = channelsHtml;
-        document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+        document.getElementById('lastUpdate').textContent = '最后更新：' + new Date().toLocaleTimeString();
       } catch (err) {
         console.error('Failed to refresh:', err);
       }

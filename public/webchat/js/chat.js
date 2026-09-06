@@ -20,7 +20,7 @@ export class Chat {
           this._copyText(code.textContent).then(() => {
             if (!codeCopy._origHtml) codeCopy._origHtml = codeCopy.innerHTML;
             clearTimeout(codeCopy._copyTimer);
-            codeCopy.innerHTML = this._checkSvg + ' Copied!';
+            codeCopy.innerHTML = this._checkSvg + ' 已复制';
             codeCopy.classList.add('copied');
             codeCopy._copyTimer = setTimeout(() => { codeCopy.innerHTML = codeCopy._origHtml; codeCopy.classList.remove('copied'); codeCopy._origHtml = null; }, 2000);
           });
@@ -37,7 +37,7 @@ export class Chat {
           this._copyText(bubble.innerText).then(() => {
             if (!msgCopy._origHtml) msgCopy._origHtml = msgCopy.innerHTML;
             clearTimeout(msgCopy._copyTimer);
-            msgCopy.innerHTML = this._checkSvg + '<span>Copied!</span>';
+            msgCopy.innerHTML = this._checkSvg + '<span>已复制</span>';
             msgCopy.classList.add('copied');
             msgCopy._copyTimer = setTimeout(() => { msgCopy.innerHTML = msgCopy._origHtml; msgCopy.classList.remove('copied'); msgCopy._origHtml = null; }, 2000);
           });
@@ -128,7 +128,7 @@ export class Chat {
       actions.className = 'msg-actions';
       const editBtn = document.createElement('button');
       editBtn.className = 'msg-edit';
-      editBtn.title = 'Edit';
+      editBtn.title = '编辑';
       editBtn.innerHTML = this._editSvg;
       actions.appendChild(editBtn);
       content.appendChild(actions);
@@ -184,8 +184,8 @@ export class Chat {
     actions.className = 'msg-actions';
     const copyBtn = document.createElement('button');
     copyBtn.className = 'msg-copy';
-    copyBtn.title = 'Copy';
-    copyBtn.innerHTML = this._copySvg + '<span>Copy</span>';
+    copyBtn.title = '复制';
+    copyBtn.innerHTML = this._copySvg + '<span>复制</span>';
     actions.appendChild(copyBtn);
 
     return actions;
@@ -237,7 +237,7 @@ export class Chat {
   showLoading() {
     const el = document.createElement('div');
     el.className = 'msg-system msg-loading';
-    el.innerHTML = '<span class="pill">Loading messages...</span>';
+    el.innerHTML = '<span class="pill">加载消息中...</span>';
     this.messagesEl.appendChild(el);
   }
 
@@ -267,7 +267,7 @@ export class Chat {
       } else if (url) {
         const link = document.createElement('a');
         link.href = url;
-        link.textContent = att.filename || att.mimeType || 'attachment';
+        link.textContent = att.filename || att.mimeType || '附件';
         link.style.cssText = 'display:block;margin-top:8px;';
         link.target = '_blank';
         link.rel = 'noopener';
@@ -299,11 +299,11 @@ export class Chat {
     if (secs < 1) {
       elapsed.textContent = '';
     } else if (secs < 60) {
-      elapsed.textContent = `${secs}s`;
+      elapsed.textContent = `${secs}秒`;
     } else {
       const m = Math.floor(secs / 60);
       const s = secs % 60;
-      elapsed.textContent = `${m}m ${s}s`;
+      elapsed.textContent = `${m}分 ${s}秒`;
     }
   }
 
@@ -426,7 +426,7 @@ export class Chat {
       if (!block) return '';
       const langAttr = block.lang ? ` class="lang-${block.lang}"` : '';
       const langLabel = block.lang ? `<span class="code-lang">${this._escapeHtml(block.lang)}</span>` : '';
-      const copyBtn = `<button class="code-copy">${this._copySvg} Copy</button>`;
+      const copyBtn = `<button class="code-copy">${this._copySvg} 复制</button>`;
       return `<div class="code-block"><div class="code-header">${langLabel}${copyBtn}</div><pre><code${langAttr}>${this._escapeHtml(block.code)}</code></pre></div>`;
     });
 

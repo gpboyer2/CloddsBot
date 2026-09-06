@@ -133,8 +133,8 @@ export class CommandPalette {
     }
 
     let html = '<div class="cmd-palette-header">'
-      + '<span>Commands</span>'
-      + '<span class="cmd-palette-hint"><kbd>\u2191\u2193</kbd> navigate <kbd>Tab</kbd> select <kbd>Esc</kbd> close</span>'
+      + '<span>命令</span>'
+      + '<span class="cmd-palette-hint"><kbd>\u2191\u2193</kbd> 导航 <kbd>Tab</kbd> 选择 <kbd>Esc</kbd> 关闭</span>'
       + '</div>';
 
     let idx = 0;
@@ -191,16 +191,16 @@ export class CommandPalette {
     this.filteredCommands = subs.map(s => ({
       name: s.name,
       description: s.description,
-      category: s.category || 'General',
+      category: s.category || '通用',
       fullName: parentCmd + ' ' + s.name,
     }));
     this.subcommandMode = true;
 
     let html = '<div class="cmd-palette-header">'
       + '<span>' + this._esc(parentCmd) + '</span>'
-      + '<span class="cmd-palette-hint"><kbd>\u2191\u2193</kbd> navigate <kbd>Tab</kbd> select <kbd>Esc</kbd> close</span>'
+      + '<span class="cmd-palette-hint"><kbd>\u2191\u2193</kbd> 导航 <kbd>Tab</kbd> 选择 <kbd>Esc</kbd> 关闭</span>'
       + '</div>';
-    html += '<div class="cmd-back" data-action="back">\u2190 All commands</div>';
+    html += '<div class="cmd-back" data-action="back">\u2190 全部命令</div>';
 
     const subGroups = {};
     for (const cmd of this.filteredCommands) {

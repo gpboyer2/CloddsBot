@@ -167,7 +167,7 @@ class App {
     this._clearFilePreview = () => {
       this._pendingAttachment = null;
       if (filePreview) filePreview.style.display = 'none';
-      if (attachBtn) { attachBtn.classList.remove('has-file'); attachBtn.title = 'Attach file'; }
+      if (attachBtn) { attachBtn.classList.remove('has-file'); attachBtn.title = '附件'; }
     };
 
     attachBtn?.addEventListener('click', () => {
@@ -191,7 +191,7 @@ class App {
         showFilePreview(file.name, file.type);
       };
       reader.onerror = () => {
-        this.chat.addMessage('Failed to read file.', 'system');
+        this.chat.addMessage('读取文件失败。', 'system');
       };
       reader.readAsDataURL(file);
       fileInput.value = '';
@@ -235,7 +235,7 @@ class App {
       const recognition = this._recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = Storage.get('webchat_language') || 'en-US';
+      recognition.lang = Storage.get('webchat_language') || 'zh-CN';
       let listening = false;
       let textBeforeVoice = '';
 
@@ -247,7 +247,7 @@ class App {
         textBeforeVoice = inputEl.value;
         listening = true;
         micBtn.classList.add('listening');
-        micBtn.title = 'Stop listening';
+        micBtn.title = '停止录音';
         recognition.start();
       });
 
@@ -271,7 +271,7 @@ class App {
       const stopListening = () => {
         listening = false;
         micBtn.classList.remove('listening');
-        micBtn.title = 'Voice input';
+        micBtn.title = '语音输入';
       };
 
       recognition.onend = stopListening;
@@ -317,22 +317,22 @@ class App {
     const subEl = document.querySelector('.welcome-sub');
     if (greetingEl) {
       const hour = new Date().getHours();
-      const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+      const greeting = hour < 12 ? '早上好' : hour < 18 ? '下午好' : '晚上好';
       greetingEl.textContent = greeting;
 
       if (subEl) {
         const subs = hour < 12 ? [
-          'What odds are you exploring today?',
-          'Markets are waking up. Ready to trade?',
-          'Time to find your edge.',
+          '今天要探索什么赔率？',
+          '市场正在苏醒，准备交易了吗？',
+          '该寻找你的优势了。',
         ] : hour < 18 ? [
-          'What odds are you exploring?',
-          'Time to predict the future.',
-          'The markets are moving. Are you?',
+          '今天想探索什么赔率？',
+          '该预测未来了。',
+          '市场在波动，你呢？',
         ] : [
-          'Time to predict the future.',
-          'What odds do you want to explore?',
-          'Markets never sleep. Neither does Clodds.',
+          '该预测未来了。',
+          '想探索什么赔率？',
+          '市场永不眠，Clodds 也是。',
         ];
         subEl.textContent = subs[Math.floor(Math.random() * subs.length)];
       }
@@ -356,12 +356,12 @@ class App {
     // WS handlers
     this.ws.on('open', () => {
       statusDot.className = 'status-dot';
-      statusDot.title = 'Authenticating...';
+      statusDot.title = '认证中...';
     });
 
     this.ws.on('close', () => {
       statusDot.className = 'status-dot error';
-      statusDot.title = 'Reconnecting...';
+      statusDot.title = '重连中...';
       reconnectBanner?.classList.add('visible');
       this.chat.hideTyping();
       this._setGenerating(false);
@@ -373,7 +373,7 @@ class App {
 
       if (msg.type === 'authenticated') {
         statusDot.className = 'status-dot connected';
-        statusDot.title = 'Connected';
+        statusDot.title = '已连接';
         reconnectBanner?.classList.remove('visible');
         // Re-fetch messages after reconnect to recover any missed responses
         // Skip if switchSession already loaded history (flag cleared after use)
@@ -392,7 +392,7 @@ class App {
         }
         if (document.hidden) {
           this._unreadCount++;
-          document.title = `(${this._unreadCount}) New message - Clodds`;
+          document.title = `(${this._unreadCount}) 新消息 - Clodds`;
         }
       } else if (msg.type === 'edit') {
         this.chat.editMessage(msg.messageId, msg.text);
@@ -400,12 +400,12 @@ class App {
         this.chat.deleteMessage(msg.messageId);
       } else if (msg.type === 'error') {
         if (msg.message === 'Invalid token') {
-          const retry = prompt('Authentication required. Enter WebChat token:');
+          const retry = prompt('需要认证，请输入 WebChat token：');
           if (retry) {
             Storage.set('webchat_token', retry);
             location.reload();
           } else {
-            this.chat.addMessage('Authentication failed. Set token or pass ?token= in URL.', 'system');
+            this.chat.addMessage('认证失败。请设置 token 或在 URL 中传递 ?token=。', 'system');
           }
         } else {
           this.chat.addMessage(msg.message, 'system');
@@ -518,17 +518,17 @@ class App {
   }
 
   async deleteSession(sessionId) {
-    if (!confirm('Delete this conversation?')) return;
+    if (!confirm('删除此对话？')) return;
     try {
       const r = await fetch(`/api/chat/sessions/${sessionId}?userId=${encodeURIComponent(this.userId)}`, {
         method: 'DELETE',
       });
       if (!r.ok) {
-        this.chat.addMessage('Failed to delete conversation. Please try again.', 'system');
+        this.chat.addMessage('删除对话失败，请重试。', 'system');
         return;
       }
     } catch {
-      this.chat.addMessage('Failed to delete conversation. Please try again.', 'system');
+      this.chat.addMessage('删除对话失败，请重试。', 'system');
       return;
     }
 
@@ -586,12 +586,12 @@ class App {
             setTimeout(check, 50);
           });
         } else {
-          this.chat.addMessage('Failed to create session. Please try again.', 'system');
+          this.chat.addMessage('创建会话失败，请重试。', 'system');
           this._sending = false;
           return;
         }
       } catch {
-        this.chat.addMessage('Failed to create session. Please try again.', 'system');
+        this.chat.addMessage('创建会话失败，请重试。', 'system');
         this._sending = false;
         return;
       }
@@ -599,7 +599,7 @@ class App {
 
     // Check if WS is actually ready before sending
     if (!this.ws.connected) {
-      this.chat.addMessage('Connection lost. Please wait and try again.', 'system');
+      this.chat.addMessage('连接断开，请稍后再试。', 'system');
       this._sending = false;
       return;
     }
@@ -707,13 +707,13 @@ class App {
       const countItem = document.createElement('span');
       countItem.className = 'welcome-pulse-item';
       countItem.innerHTML = '<span class="welcome-pulse-dot live"></span>'
-        + '<span class="welcome-pulse-value">' + markets.length + '</span> markets tracked';
+        + '<span class="welcome-pulse-value">' + markets.length + '</span> 个市场正在追踪';
       el.appendChild(countItem);
 
       // Platform count
       const platItem = document.createElement('span');
       platItem.className = 'welcome-pulse-item';
-      platItem.innerHTML = '<span class="welcome-pulse-value">' + platforms.size + '</span> platforms';
+      platItem.innerHTML = '<span class="welcome-pulse-value">' + platforms.size + '</span> 个平台';
       el.appendChild(platItem);
 
       // Hot market
@@ -737,7 +737,7 @@ class App {
     if (on) {
       btn.classList.add('stop-mode');
       btn.innerHTML = this._stopSvg;
-      btn.title = 'Stop generating';
+      btn.title = '停止生成';
       btn.classList.add('active');
       // Auto-reset after 90s to prevent stuck state
       this._genTimeout = setTimeout(() => {
@@ -747,7 +747,7 @@ class App {
     } else {
       btn.classList.remove('stop-mode');
       btn.innerHTML = this._sendSvg;
-      btn.title = 'Send';
+      btn.title = '发送';
     }
   }
 }
